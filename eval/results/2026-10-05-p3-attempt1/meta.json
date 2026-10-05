@@ -1,0 +1,62 @@
+{
+  "label": "2026-10-05-p3-attempt1",
+  "note": "첫 공식 평가. 지시 p3 고정(개발 질문으로만 조정)",
+  "started_at": "2026-10-05T22:00:22",
+  "git": {
+    "commit": "661a1ec",
+    "dirty": false
+  },
+  "model": {
+    "model": "qwen3:4b-instruct",
+    "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "ollama_version": "0.35.1"
+  },
+  "prompt_version": "p3",
+  "prompt_fingerprint": "d06ac2972eaf",
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 2048,
+    "num_predict": 300
+  },
+  "questions_version": "q1",
+  "questions_sha256": "b25dbdb14f6b",
+  "data_fingerprint": "2e4ed5d8c9d3",
+  "host": {
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1360P",
+    "cpus": 16,
+    "mem_total_kb": 7909716
+  },
+  "warmup": {
+    "question": "워밍업: 9월 9일 기록 없음 보여줘",
+    "note": "모델 적재용. 점수에 포함하지 않음",
+    "raw": "{\n  \"action\": \"query\",\n  \"date_from\": \"2026-09-09\",\n  \"date_to\": \"2026-09-09\",\n  \"employee_id\": null,\n  \"issue_type\": \"기록 없음\",\n  \"min_difference_minutes\": null,\n  \"query_type\": \"issues\",\n  \"question\": null,\n  \"time_side\": null\n}",
+    "elapsed_seconds": 39.006,
+    "load_seconds": 5.857,
+    "prompt_eval_seconds": 25.054,
+    "eval_seconds": 8.051,
+    "prompt_tokens": 1178,
+    "output_tokens": 91
+  },
+  "finished_at": "2026-10-05T22:04:28",
+  "summary": {
+    "passed": 18,
+    "total": 24,
+    "elapsed_seconds": {
+      "min": 7.337,
+      "median": 10.182,
+      "max": 13.973,
+      "mean": 10.249
+    },
+    "failed_runs": [
+      4,
+      8,
+      12,
+      16,
+      20,
+      24
+    ]
+  }
+}

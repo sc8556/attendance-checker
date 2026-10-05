@@ -72,7 +72,15 @@ def simplify_rows(query_type, rows):
 
 
 def judge(q, result):
-    parsed = result["parsed"] or {}
+    parsed = result["parsed"]
+    if parsed is None:
+        # 앱이 거부한 응답도 실패 원인을 읽을 수 있도록 원본 JSON으로 불일치를 보여준다(통과 판정에는 쓰지 않음)
+        try:
+            parsed = json.loads((result["ai"] or {}).get("raw") or "")
+        except json.JSONDecodeError:
+            parsed = {}
+        if not isinstance(parsed, dict):
+            parsed = {}
     exp = q["expected_conditions"]
     mismatches = {k: {"expected": v, "actual": parsed.get(k, "<없음>")} for k, v in exp.items() if parsed.get(k, "<없음>") != v}
     if exp.get("action") == "clarify" and not (isinstance(parsed.get("question"), str) and parsed["question"].strip()):

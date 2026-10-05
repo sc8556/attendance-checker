@@ -29,6 +29,11 @@ DEV_QUESTIONS = [
     ("E005 급여 계산해줘", "unsupported|clarify", {}),
     ("9월 14일 출근 시간이 15분 이상 차이 나는 사람", "ok", {"query_type": "time_difference", "time_side": "출근", "min_difference_minutes": 15}),
     ("직원03 9월 3일에 무슨 문제 있었어?", "ok", {"query_type": "issues", "employee_id": "E003", "date_from": "2026-09-03"}),
+    # 공식 1차 평가 실패(하루 질문의 date_to null) 이후 추가한 개발 질문
+    ("9월 11일 출근 시간이 25분 이상 차이 나는 직원 보여줘", "empty", {"query_type": "time_difference", "date_from": "2026-09-11", "date_to": "2026-09-11", "time_side": "출근", "min_difference_minutes": 25}),
+    ("12월 24일 출근 미태그 보여줘", "out_of_range", {"date_from": "2026-12-24", "date_to": "2026-12-24", "issue_type": "출근 미태그"}),
+    ("9월 14일 시각 어긋남(출근) 보여줘", "ok", {"date_from": "2026-09-14", "date_to": "2026-09-14", "issue_type": "시각 어긋남(출근)"}),
+    ("E010 9월 14일 출입 기록", "ok", {"query_type": "employee_records", "employee_id": "E010", "date_from": "2026-09-14", "date_to": "2026-09-14"}),
 ]
 
 

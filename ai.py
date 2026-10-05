@@ -16,7 +16,7 @@ OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:4b-instruct")
 TIMEOUT_SECONDS = int(os.environ.get("OLLAMA_TIMEOUT", "180"))
 
-PROMPT_VERSION = "p3"
+PROMPT_VERSION = "p5"
 
 # 평가 전에 고정한 생성 설정. 조건 추출 작업이라 무작위성을 끈다(temperature 0, seed 고정).
 OPTIONS = {
@@ -71,7 +71,7 @@ SYSTEM_PROMPT = f"""너는 근태 조회 앱의 질문 해석기다. 사용자�
 - date_to: 끝 날짜 YYYY-MM-DD, 날짜 생략 시 null. 하루 질문은 date_from과 같은 날짜를 적는다. 둘 중 하나만 null로 두지 않는다.
 - employee_id: 질문에 지정된 직원 번호(예: E002) 또는 null. null은 직원 조건 생략
 - issue_type: issues 조회에서만 위 여섯 문제 종류 중 하나 또는 null. 질문에 문제 종류가 없거나 '문제 전부'·'모든 문제'처럼 전체를 요청하면 null이다. 질문에 없는 문제 종류를 고르지 않는다. employee_records·time_difference에서는 항상 null
-- time_side: time_difference에서만 "출근" 또는 "퇴근". 다른 조회에서는 null
+- time_side: time_difference에서만 "출근" 또는 "퇴근". 다른 조회에서는 null. issues 조회는 문제 종류에 출근·퇴근이 들어 있어도(예: 퇴근 미태그) time_side가 null이다
 - min_difference_minutes: time_difference에서만 '몇 분 이상'의 정수. 다른 조회에서는 null
 - question: clarify·unsupported일 때 사용자에게 물을 한 가지 질문. 조회할 때는 null
 
@@ -82,7 +82,17 @@ SYSTEM_PROMPT = f"""너는 근태 조회 앱의 질문 해석기다. 사용자�
 4. 날짜를 명시했으면 보유 기간 밖이더라도 그 날짜를 그대로 전달한다. 보유 기간으로 바꾸지 않는다. 직원 이름을 번호로 바꿀 때는 위 직원 목록으로만 연결한다. 모르는 직원이나 불명확한 날짜·뜻은 확인한다.
 5. '늦게 온 직원'처럼 뜻이 불명확하면 action을 clarify로 하고 question에 짧은 확인 질문 하나를 넣는다. 지원하지 않는 요청은 unsupported와 지원하는 조회로 이어질 한 가지 질문을 돌려준다. 이 두 경우에는 조회를 실행하지 않는다.
 6. 시간 차이 조회는 출근/퇴근과 '몇 분 이상' 조건을 추출한다. 출근인지 퇴근인지 불명확하면 확인한다. 초과·이하 등 다른 비교 의미를 임의로 '이상'으로 바꾸지 않고 확인한다. 기존 이상 판정 기준 10분은 조회 조건과 구분한다.
-7. 직원 검색 결과·시각·출입 기록·SQL은 생성하지 않는다. 조회 결과는 앱이 실제 DB에서 가져온다."""
+7. 직원 검색 결과·시각·출입 기록·SQL은 생성하지 않는다. 조회 결과는 앱이 실제 DB에서 가져온다.
+
+[예시] 하루 질문은 date_from과 date_to에 같은 날짜를 모두 적는다.
+질문: 9월 10일 중복 기록 알려줘
+{{"action": "query", "query_type": "issues", "date_from": "2026-09-10", "date_to": "2026-09-10", "employee_id": null, "issue_type": "중복 기록", "time_side": null, "min_difference_minutes": null, "question": null}}
+질문: 9월 9일 퇴근 시각이 20분 이상 차이 나는 사람
+{{"action": "query", "query_type": "time_difference", "date_from": "2026-09-09", "date_to": "2026-09-09", "employee_id": null, "issue_type": null, "time_side": "퇴근", "min_difference_minutes": 20, "question": null}}
+질문: 직원05 9월 7일부터 9월 9일까지 기록
+{{"action": "query", "query_type": "employee_records", "date_from": "2026-09-07", "date_to": "2026-09-09", "employee_id": "E005", "issue_type": null, "time_side": null, "min_difference_minutes": null, "question": null}}
+질문: 기록 없음 전부 보여줘
+{{"action": "query", "query_type": "issues", "date_from": null, "date_to": null, "employee_id": null, "issue_type": "기록 없음", "time_side": null, "min_difference_minutes": null, "question": null}}"""
 
 
 class AIError(Exception):
