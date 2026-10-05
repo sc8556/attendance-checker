@@ -1,0 +1,6 @@
+attendance.db
+venv/
+__pycache__/
+.pytest_cache/
+*.csv
+*.xlsx
