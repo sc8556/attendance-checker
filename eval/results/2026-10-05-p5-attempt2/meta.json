@@ -1,0 +1,55 @@
+{
+  "label": "2026-10-05-p5-attempt2",
+  "note": "1차 실패(하루 질문 date_to null) 후 지시 p5로 수정. 1차 실패를 본 뒤 수정했으므로 완전한 미공개 평가는 아님",
+  "started_at": "2026-10-05T22:13:33",
+  "git": {
+    "commit": "568cea7",
+    "dirty": false
+  },
+  "model": {
+    "model": "qwen3:4b-instruct",
+    "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "ollama_version": "0.35.1"
+  },
+  "prompt_version": "p5",
+  "prompt_fingerprint": "c9e938c5db49",
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 2048,
+    "num_predict": 300
+  },
+  "questions_version": "q1",
+  "questions_sha256": "b25dbdb14f6b",
+  "data_fingerprint": "2e4ed5d8c9d3",
+  "host": {
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1360P",
+    "cpus": 16,
+    "mem_total_kb": 7909716
+  },
+  "warmup": {
+    "question": "워밍업: 9월 9일 기록 없음 보여줘",
+    "note": "모델 적재용. 점수에 포함하지 않음",
+    "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-09\", \"date_to\": \"2026-09-09\", \"employee_id\": null, \"issue_type\": \"기록 없음\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}",
+    "elapsed_seconds": 10.168,
+    "load_seconds": 0.002,
+    "prompt_eval_seconds": 1.096,
+    "eval_seconds": 9.038,
+    "prompt_tokens": 1614,
+    "output_tokens": 80
+  },
+  "finished_at": "2026-10-05T22:17:38",
+  "summary": {
+    "passed": 24,
+    "total": 24,
+    "elapsed_seconds": {
+      "min": 7.343,
+      "median": 10.172,
+      "max": 13.277,
+      "mean": 10.21
+    },
+    "failed_runs": []
+  }
+}

@@ -107,7 +107,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--label", required=True, help="결과 폴더 이름. 이미 있으면 중단(덮어쓰기 금지)")
     parser.add_argument("--note", default="", help="이번 회차 실행 이유·변경 사항")
+    parser.add_argument("--supplementary-sampling", action="store_true",
+                        help="보조 실험(공식 점수 아님): Qwen 권장 샘플링(temperature 0.7, top_p 0.8, top_k 20), seed 고정 없음")
     args = parser.parse_args()
+    if args.supplementary_sampling:
+        ai.OPTIONS.pop("seed", None)
+        ai.OPTIONS.update(temperature=0.7, top_p=0.8, top_k=20)
 
     out_dir = os.path.join(EVAL_DIR, "results", args.label)
     if os.path.exists(out_dir):
@@ -127,6 +132,7 @@ def main():
     warmup = ai.extract(WARMUP_QUESTION)
     meta = {
         "label": args.label,
+        "official": not args.supplementary_sampling,
         "note": args.note,
         "started_at": datetime.datetime.now().isoformat(timespec="seconds"),
         "git": git,
@@ -185,7 +191,7 @@ def main():
 def write_summary(out_dir, meta, runs, spec):
     s = meta["summary"]
     lines = [
-        f"# 평가 결과 {meta['label']}",
+        f"# 평가 결과 {meta['label']}" + ("" if meta["official"] else " (보조 실험 · 공식 점수 아님)"),
         "",
         f"- 결과: **{s['passed']}/{s['total']} 회차 통과**",
         f"- 모델: `{meta['model']['model']}` (digest `{meta['model']['digest'][:12]}`), Ollama {meta['model']['ollama_version']}",
