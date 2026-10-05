@@ -16,7 +16,7 @@ OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:4b-instruct")
 TIMEOUT_SECONDS = int(os.environ.get("OLLAMA_TIMEOUT", "180"))
 
-PROMPT_VERSION = "p1"
+PROMPT_VERSION = "p3"
 
 # 평가 전에 고정한 생성 설정. 조건 추출 작업이라 무작위성을 끈다(temperature 0, seed 고정).
 OPTIONS = {
@@ -63,13 +63,16 @@ SYSTEM_PROMPT = f"""너는 근태 조회 앱의 질문 해석기다. 사용자�
 
 [JSON 항목] 9개 항목을 항상 모두 포함하고, 사용하지 않는 값은 null로 둔다.
 - action: "query"(조회), "clarify"(뜻 확인), "unsupported"(지원 범위 안내)
-- query_type: "issues"(문제 목록), "employee_records"(직원별 수기 시각과 출입 기록), "time_difference"(수기와 단말 시각의 차이), 또는 null
+- query_type: 조회할 때 아래 셋 중 하나, 아니면 null
+  - "issues"(문제 목록): 문제(이상 기록)를 찾는 질문. '~한 직원 보여줘', '~한 사람'처럼 여러 직원 중 문제가 있는 사람을 찾는 질문도 issues다.
+  - "employee_records"(직원별 기록): 특정 직원 한 명(번호나 이름)의 수기 시각과 출입 기록 자체를 보려는 질문. employee_id가 반드시 있다.
+  - "time_difference"(시간 차이): '몇 분 이상 차이'처럼 분 조건으로 수기와 단말 시각 차이를 찾는 질문.
 - date_from: 시작 날짜 YYYY-MM-DD, 날짜 생략 시 null
-- date_to: 끝 날짜 YYYY-MM-DD, 날짜 생략 시 null. 하루 질문은 date_from과 같은 날짜
+- date_to: 끝 날짜 YYYY-MM-DD, 날짜 생략 시 null. 하루 질문은 date_from과 같은 날짜를 적는다. 둘 중 하나만 null로 두지 않는다.
 - employee_id: 질문에 지정된 직원 번호(예: E002) 또는 null. null은 직원 조건 생략
-- issue_type: 위 여섯 문제 종류 중 하나 또는 null
-- time_side: 시간 차이 조회의 "출근" 또는 "퇴근". 해당 조건이 없으면 null
-- min_difference_minutes: 시간 차이의 '몇 분 이상' 조건을 정수로. 해당 조건이 없으면 null
+- issue_type: issues 조회에서만 위 여섯 문제 종류 중 하나 또는 null. 질문에 문제 종류가 없거나 '문제 전부'·'모든 문제'처럼 전체를 요청하면 null이다. 질문에 없는 문제 종류를 고르지 않는다. employee_records·time_difference에서는 항상 null
+- time_side: time_difference에서만 "출근" 또는 "퇴근". 다른 조회에서는 null
+- min_difference_minutes: time_difference에서만 '몇 분 이상'의 정수. 다른 조회에서는 null
 - question: clarify·unsupported일 때 사용자에게 물을 한 가지 질문. 조회할 때는 null
 
 [규칙]

@@ -1,0 +1,67 @@
+{
+  "version": "q1",
+  "source": "설계 문서 8장 '대표 검사 질문·기대 동작'(2026-10-05 승인). 기대값은 사람이 정답 12건과 seed 규칙으로 적었고 모델 출력으로 만들지 않았다.",
+  "repeats": 3,
+  "pass_rule": "회차 통과 = (1) AI 조건 일치 (2) 앱 상태 일치 (3) DB 조회 결과 일치. query는 question을 제외한 8개 항목을 모두 비교(사용하지 않는 항목은 null이어야 함). clarify는 action과 question이 비어 있지 않은지만 비교.",
+  "questions": [
+    {
+      "id": 1, "label": "문제 목록",
+      "question": "9월 2일 퇴근 미태그 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "issues", "date_from": "2026-09-02", "date_to": "2026-09-02", "employee_id": null, "issue_type": "퇴근 미태그", "time_side": null, "min_difference_minutes": null},
+      "expected_status": "ok",
+      "expected_rows": [["퇴근 미태그", "E002", "2026-09-02"]]
+    },
+    {
+      "id": 2, "label": "다른 표현",
+      "question": "9월 8일 출근을 안 찍은 기록 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "issues", "date_from": "2026-09-08", "date_to": "2026-09-08", "employee_id": null, "issue_type": "출근 미태그", "time_side": null, "min_difference_minutes": null},
+      "expected_status": "ok",
+      "expected_rows": [["출근 미태그", "E003", "2026-09-08"]]
+    },
+    {
+      "id": 3, "label": "직원별 기록",
+      "question": "E002의 9월 2일 기록 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "employee_records", "date_from": "2026-09-02", "date_to": "2026-09-02", "employee_id": "E002", "issue_type": null, "time_side": null, "min_difference_minutes": null},
+      "expected_status": "ok",
+      "expected_rows": [{"emp_id": "E002", "work_date": "2026-09-02", "manual_in": "08:00", "manual_out": "17:00",
+                         "logs": [["08:02", "IN"], ["11:58", "OUT"], ["13:01", "IN"], ["15:00", "OUT"], ["15:13", "IN"]]}],
+      "note": "정상 시각 흔들림은 seed.jitter 공식으로 손 계산(직원 2, 9/2=day 1). 17:00 퇴근 OUT은 퇴근 미태그로 빠짐."
+    },
+    {
+      "id": 4, "label": "시간 차이",
+      "question": "9월 1일 출근 시간이 30분 이상 차이 나는 직원 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "time_difference", "date_from": "2026-09-01", "date_to": "2026-09-01", "employee_id": null, "issue_type": null, "time_side": "출근", "min_difference_minutes": 30},
+      "expected_status": "ok",
+      "expected_rows": [["E001", "2026-09-01", "08:40", "08:00", 40]]
+    },
+    {
+      "id": 5, "label": "날짜 생략",
+      "question": "퇴근 미태그 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "issues", "date_from": null, "date_to": null, "employee_id": null, "issue_type": "퇴근 미태그", "time_side": null, "min_difference_minutes": null},
+      "expected_status": "ok",
+      "expected_applied_period": ["2026-09-01", "2026-09-14"],
+      "expected_rows": [["퇴근 미태그", "E002", "2026-09-02"], ["퇴근 미태그", "E005", "2026-09-07"], ["퇴근 미태그", "E009", "2026-09-11"]]
+    },
+    {
+      "id": 6, "label": "뜻이 모호함",
+      "question": "늦게 온 직원 보여줘",
+      "expected_conditions": {"action": "clarify"},
+      "expected_status": "clarify",
+      "expected_rows": []
+    },
+    {
+      "id": 7, "label": "결과 없음",
+      "question": "9월 3일 퇴근 미태그 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "issues", "date_from": "2026-09-03", "date_to": "2026-09-03", "employee_id": null, "issue_type": "퇴근 미태그", "time_side": null, "min_difference_minutes": null},
+      "expected_status": "empty",
+      "expected_rows": []
+    },
+    {
+      "id": 8, "label": "보유 기간 밖",
+      "question": "10월 1일 퇴근 미태그 보여줘",
+      "expected_conditions": {"action": "query", "query_type": "issues", "date_from": "2026-10-01", "date_to": "2026-10-01", "employee_id": null, "issue_type": "퇴근 미태그", "time_side": null, "min_difference_minutes": null},
+      "expected_status": "out_of_range",
+      "expected_rows": []
+    }
+  ]
+}
