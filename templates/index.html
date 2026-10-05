@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>근태 대조</title>
+<style>
+  :root { --fg:#1f2328; --muted:#656d76; --line:#d0d7de; --bg:#fff; --soft:#f6f8fa; --accent:#0969da; --warn:#9a6700; --bad:#cf222e; }
+  body { font-family: system-ui, "Malgun Gothic", sans-serif; color:var(--fg); background:var(--bg); max-width: 960px; margin: 0 auto; padding: 16px; line-height: 1.5; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  h2 { font-size: 1.15rem; margin-top: 32px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  h3 { font-size: 1rem; margin: 20px 0 6px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  form { display:flex; gap:8px; flex-wrap:wrap; }
+  input[type=text] { flex:1; min-width: 240px; padding:8px 10px; font-size:1rem; border:1px solid var(--line); border-radius:6px; }
+  button { padding:8px 16px; font-size:1rem; border:0; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+  .examples a { margin-right: 10px; font-size:.9rem; }
+  .box { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-top:12px; background:var(--soft); }
+  .box.warn { border-color: var(--warn); }
+  .box.bad { border-color: var(--bad); }
+  table { border-collapse: collapse; width: 100%; margin-top: 6px; font-size: .92rem; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); }
+  .cards { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .card { border:1px solid var(--line); border-radius:8px; padding:6px 12px; }
+  .logs { font-family: ui-monospace, Consolas, monospace; font-size:.85rem; }
+  dl { display:grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 0; }
+  dt { color: var(--muted); }
+  details { margin-top: 8px; }
+  pre { white-space: pre-wrap; font-size: .82rem; }
+  .wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>근태 대조</h1>
+<p class="muted">가짜 데이터 · 기간 {{ demo_start }} ~ {{ demo_end }} · 직원 10명 · 시각 어긋남 기준 {{ threshold }}분</p>
+
+<h2>말로 조회하기</h2>
+<form method="get" action="/">
+  <input type="text" name="q" value="{{ question }}" placeholder="예: 9월 2일 퇴근 미태그 보여줘" maxlength="200">
+  <button type="submit">조회</button>
+</form>
+<p class="examples muted">예시:
+  {% for ex in examples %}<a href="/?q={{ ex | urlencode }}">{{ ex }}</a>{% endfor %}
+</p>
+<p class="muted">AI(로컬 Qwen3 4B)는 질문에서 조회 조건만 뽑습니다. 앱이 조건을 검사한 뒤 미리 작성한 SQL로 실제 DB를 조회합니다. CPU로 실행해 응답에 수 초~수십 초 걸릴 수 있습니다.</p>
+
+{% if answer %}
+  {% set st = answer.status %}
+  <div class="box {% if st in ['ai_error','db_error','invalid'] %}bad{% elif st in ['clarify','unsupported','out_of_range','unknown_employee'] %}warn{% endif %}">
+    {% if answer.applied %}
+      <dl>{% for k, v in answer.applied.labels %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+    {% endif %}
+    {% if st == 'clarify' %}<p><strong>확인이 필요합니다:</strong> {{ answer.message }}</p><p class="muted">조건이 확정되기 전에는 조회하지 않습니다.</p>
+    {% elif st == 'ok' %}<p><strong>결과 {{ answer.message }}</strong></p>
+    {% else %}<p><strong>{{ answer.message }}</strong></p>{% endif %}
+
+    {% if st == 'ok' %}
+      <div class="wrap">
+      {% if answer.applied.query_type == 'issues' %}
+        <table><tr><th>종류</th><th>직원</th><th>날짜</th><th>상세</th><th>그날 출입 기록</th></tr>
+        {% for r in answer.rows %}<tr><td>{{ r.issue_type }}</td><td>{{ r.emp_id }}</td><td>{{ r.work_date }}</td><td>{{ r.detail }}</td>
+          <td class="logs">{% for l in r.logs %}{{ l.time }} {{ l.direction }}{% if not loop.last %}<br>{% endif %}{% else %}(없음){% endfor %}</td></tr>{% endfor %}
+        </table>
+      {% elif answer.applied.query_type == 'employee_records' %}
+        <table><tr><th>직원</th><th>날짜</th><th>수기 출근</th><th>수기 퇴근</th><th>출입 기록</th></tr>
+        {% for r in answer.rows %}<tr><td>{{ r.emp_id }}</td><td>{{ r.work_date }}</td><td>{{ r.manual_in or '-' }}</td><td>{{ r.manual_out or '-' }}</td>
+          <td class="logs">{% for l in r.logs %}{{ l.time }} {{ l.direction }}{% if not loop.last %}<br>{% endif %}{% else %}(없음){% endfor %}</td></tr>{% endfor %}
+        </table>
+      {% else %}
+        <table><tr><th>직원</th><th>날짜</th><th>구분</th><th>단말</th><th>수기</th><th>차이</th><th>그날 출입 기록</th></tr>
+        {% for r in answer.rows %}<tr><td>{{ r.emp_id }}</td><td>{{ r.work_date }}</td><td>{{ r.side }}</td><td>{{ r.terminal_time }}</td><td>{{ r.manual_time }}</td><td>{{ r.diff_minutes }}분</td>
+          <td class="logs">{% for l in r.logs %}{{ l.time }} {{ l.direction }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>{% endfor %}
+        </table>
+      {% endif %}
+      </div>
+    {% endif %}
+    <details><summary class="muted">AI 원본 응답{% if answer.ai %} · {{ answer.ai.elapsed_seconds }}초{% endif %}</summary>
+      <pre>{{ answer.ai.raw if answer.ai else answer.invalid_reason }}</pre></details>
+  </div>
+{% endif %}
+
+<h2>전체 대조 결과</h2>
+<div class="cards">
+  {% for t, rows in groups.items() %}<div class="card">{{ t }} <strong>{{ rows | length }}</strong></div>{% endfor %}
+  <div class="card">총 <strong>{{ results | length }}</strong>건</div>
+</div>
+{% for t, rows in groups.items() %}
+  <h3>■ {{ t }} ({{ rows | length }}건)</h3>
+  {% if rows %}
+  <div class="wrap"><table><tr><th>직원</th><th>날짜</th><th>상세</th></tr>
+    {% for r in rows %}<tr><td>{{ r.emp_id }}</td><td>{{ r.work_date }}</td><td>{{ r.detail }}</td></tr>{% endfor %}
+  </table></div>
+  {% else %}<p class="muted">이상 없음</p>{% endif %}
+{% endfor %}
+</body>
+</html>

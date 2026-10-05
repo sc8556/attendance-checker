@@ -110,7 +110,8 @@ def build(conn):
     conn.commit()
 
 
-def main(db_path=DB_PATH):
+def main(db_path=None):
+    db_path = db_path or DB_PATH
     if os.path.exists(db_path):
         os.remove(db_path)
     conn = sqlite3.connect(db_path)
