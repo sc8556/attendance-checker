@@ -1,0 +1,88 @@
+{
+  "checked_at": "2026-10-06T23:41:27",
+  "target": "docker container attendance-checker (localhost:7860, /api/ask)",
+  "note": "Docker 패키징 동작 확인. 공식 평가(eval/results)와 별개, 각 문항 1회.",
+  "runs": [
+    {
+      "id": 1,
+      "question": "9월 2일 퇴근 미태그 보여줘",
+      "status": "ok",
+      "pass": true,
+      "wall_seconds": 9.7,
+      "ai_seconds": 9.673,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-02\", \"date_to\": \"2026-09-02\", \"employee_id\": null, \"issue_type\": \"퇴근 미태그\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}"
+    },
+    {
+      "id": 2,
+      "question": "9월 8일 출근을 안 찍은 기록 보여줘",
+      "status": "ok",
+      "pass": true,
+      "wall_seconds": 20.5,
+      "ai_seconds": 20.525,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-08\", \"date_to\": \"2026-09-08\", \"employee_id\": null, \"issue_type\": \"출근 미태그\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}"
+    },
+    {
+      "id": 3,
+      "question": "E002의 9월 2일 기록 보여줘",
+      "status": "ok",
+      "pass": true,
+      "wall_seconds": 31.5,
+      "ai_seconds": 31.517,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-02\", \"date_to\": \"2026-09-02\", \"employee_id\": \"E002\", \"issue_type\": null, \"min_difference_minutes\": null, \"query_type\": \"employee_records\", \"question\": null, \"time_side\": null}"
+    },
+    {
+      "id": 4,
+      "question": "9월 1일 출근 시간이 30분 이상 차이 나는 직원 보여줘",
+      "status": "ok",
+      "pass": true,
+      "wall_seconds": 10.6,
+      "ai_seconds": 10.54,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-01\", \"date_to\": \"2026-09-01\", \"employee_id\": null, \"issue_type\": null, \"min_difference_minutes\": 30, \"query_type\": \"time_difference\", \"question\": null, \"time_side\": \"출근\"}"
+    },
+    {
+      "id": 5,
+      "question": "퇴근 미태그 보여줘",
+      "status": "ok",
+      "pass": true,
+      "wall_seconds": 7.6,
+      "ai_seconds": 7.62,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": null, \"date_to\": null, \"employee_id\": null, \"issue_type\": \"퇴근 미태그\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}"
+    },
+    {
+      "id": 6,
+      "question": "늦게 온 직원 보여줘",
+      "status": "clarify",
+      "pass": true,
+      "wall_seconds": 12.7,
+      "ai_seconds": 12.665,
+      "mismatches": {},
+      "raw": "{\"action\": \"clarify\", \"date_from\": null, \"date_to\": null, \"employee_id\": null, \"issue_type\": null, \"min_difference_minutes\": null, \"query_type\": null, \"question\": \"어떤 기준으로 '늦게 온' 직원을 의미하시나요? 예를 들어, 출근 시각이 기준보다 몇 분 이상 늦은 경우를 말씀하시는 건가요?\", \"time_side\": null}"
+    },
+    {
+      "id": 7,
+      "question": "9월 3일 퇴근 미태그 보여줘",
+      "status": "empty",
+      "pass": true,
+      "wall_seconds": 10.6,
+      "ai_seconds": 10.576,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-03\", \"date_to\": \"2026-09-03\", \"employee_id\": null, \"issue_type\": \"퇴근 미태그\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}"
+    },
+    {
+      "id": 8,
+      "question": "10월 1일 퇴근 미태그 보여줘",
+      "status": "out_of_range",
+      "pass": true,
+      "wall_seconds": 10.8,
+      "ai_seconds": 10.795,
+      "mismatches": {},
+      "raw": "{\"action\": \"query\", \"date_from\": \"2026-10-01\", \"date_to\": \"2026-10-01\", \"employee_id\": null, \"issue_type\": \"퇴근 미태그\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}"
+    }
+  ],
+  "timing_note": "확인 도중 브라우저 조회 3건(14:39:55, 14:40:16, 14:40:26 종료)이 같이 들어와 Q2·Q3가 대기열에서 기다림(OLLAMA_NUM_PARALLEL=1). Ollama 로그 기준 요청 1건의 실제 처리는 약 7.6~12.7초. 공식 2차 평가(노트북 직접 실행) 7.3~13.3초와 같은 범위."
+}

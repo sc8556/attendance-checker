@@ -33,9 +33,9 @@ AI는 **조건만** 만듭니다. SQL·직원 결과·시각은 만들지 않으
 | `ai.py` | Ollama 호출, 공통 지시(프롬프트), JSON Schema, 생성 설정 |
 | `nl_query.py` | AI 응답 검증 → 기본값 적용 → 고정 SQL 실행 → 결과 상태 구분 |
 | `app.py`, `templates/index.html` | 웹 화면(`/`), JSON API(`POST /api/ask`), `/health` |
-| `tests/` | 정답 12건 검증, 검증 규칙·오류 처리, 화면, 채점기 자체 검증 (46개) |
-| `eval/` | 공식 평가 문항(`questions.json`), 평가 실행기, 회차별 기록, 개발용 점검 기록 |
-| `Dockerfile`, `entrypoint.sh` | 앱 + Ollama + 모델을 이미지 하나로 |
+| `tests/` | 정답 12건 검증, 검증 규칙·오류 처리, 화면, 채점기 자체 검증 (47개) |
+| `eval/` | 공식 평가 문항(`questions.json`), 평가 실행기, 회차별 기록, 개발용 점검 기록, Docker 컨테이너 동작 확인(`eval/container/`) |
+| `Dockerfile`, `entrypoint.sh` | 앱 + Ollama + 모델을 이미지 하나로. 컨테이너가 켜질 때 공통 지시를 미리 읽혀 둠(워밍업) |
 
 ## 실행 방법 (WSL Ubuntu 기준)
 
@@ -48,7 +48,7 @@ git clone https://github.com/sc8556/attendance-checker.git && cd attendance-chec
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
 python seed.py            # employees 10 / manual_sheet 100 / terminal_logs 485
-pytest -q                 # 46 passed (AI 없이 실행됨)
+pytest -q                 # 47 passed (AI 없이 실행됨)
 
 # 3) 앱 실행 → http://localhost:5000
 python app.py
@@ -56,6 +56,22 @@ python app.py
 # 4) 공식 평가 (8문항 × 3회, 커밋되지 않은 변경이 있으면 실행 거부)
 python eval/run_eval.py --label <새 이름> --note "<실행 이유>"
 ```
+
+### Docker로 실행 (Docker Engine 29.1, WSL Ubuntu에서 확인)
+
+Ollama·모델(2.5GB)·앱·가짜 DB가 이미지 하나에 들어 있어 따로 설치할 것이 없습니다. 외부에는 앱 포트 7860만 열고, Ollama는 컨테이너 안 `127.0.0.1:11434`에서만 실행됩니다.
+
+```bash
+docker build -t attendance-checker .        # 첫 빌드는 모델 다운로드로 수 분
+docker run -d -p 7860:7860 --name attendance attendance-checker
+docker logs -f attendance                   # 첫 POST "/api/chat" 줄 = 워밍업 완료
+# → http://localhost:7860
+```
+
+- **이미지 크기:** 압축 2.53GB(대부분 모델), 디스크 5.26GB.
+- **메모리:** 실행 중 약 4.9GiB(`docker stats`). 1GiB급 서버에서는 실행 불가.
+- **워밍업:** 공통 지시가 약 1,600토큰이라 컨테이너가 막 켜진 뒤 첫 요청은 약 50초(노트북) 걸립니다. `entrypoint.sh`가 시작할 때 평가 문항이 아닌 질문 하나를 보내 이 시간을 미리 써 두고, 이후 요청은 Ollama가 공통 지시 앞부분의 계산을 재사용해 약 10초가 됩니다.
+- **동작 확인 (2026-10-06, 공식 평가 아님):** 컨테이너의 `/api/ask`로 공식 8문항을 각 1회 보내 같은 채점기로 판정 → **8/8 통과**. AI 처리 시간 약 7.6~12.7초(Ollama 로그 기준)로 노트북 직접 실행 공식 2차와 같은 범위. 확인 도중 브라우저 조회가 함께 들어와 두 문항은 대기열에서 기다렸습니다(동시 처리 1개). 기록: [`eval/container/`](eval/container/).
 
 ## 데이터와 정답 12건
 
@@ -129,4 +145,5 @@ python eval/run_eval.py --label <새 이름> --note "<실행 이유>"
 ## 진행 기록
 
 - 2026-10-05: 저장소 생성, seed·정답 12건 SQL 검증(46개 테스트), 자연어 조회·웹 화면, 공식 평가 1차 18/24 → 지시 수정 → 2차 24/24, 보조 실험 24/24.
-- Docker 패키징, Hugging Face Spaces 배포: 진행 예정(이 README에 결과를 추가할 때까지 미완료).
+- 2026-10-06: Docker 패키징 완료. 첫 빌드에서 `/app` 폴더 소유자가 root라 일반 사용자로 DB를 만들지 못해 실패 → `chown` 한 줄로 수정. 화면에 처리 중 표시·중복 클릭 방지, 시작 시 워밍업, 모델 유지 시간 설정(`AI_KEEP_ALIVE`) 추가. 컨테이너에서 공식 8문항 동작 확인 8/8.
+- Hugging Face Spaces 배포: 진행 예정(이 README에 결과를 추가할 때까지 미완료).

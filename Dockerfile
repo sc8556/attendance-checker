@@ -30,6 +30,7 @@ COPY --from=ollama /usr/local/lib/ollama /usr/local/lib/ollama
 COPY --from=ollama --chown=user /models /models
 
 WORKDIR /app
+RUN chown user:user /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY --chown=user . .
@@ -42,6 +43,7 @@ ENV HOME=/home/user \
     OLLAMA_MODEL=${MODEL} \
     OLLAMA_NUM_PARALLEL=1 \
     OLLAMA_KEEP_ALIVE=-1 \
+    AI_KEEP_ALIVE=24h \
     ATTENDANCE_DB=/app/attendance.db \
     PORT=7860
 # 이미지를 만들 때 seed.py로 DB를 넣는다(설계 원칙 4)

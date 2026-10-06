@@ -15,6 +15,8 @@ from seed import EMPLOYEES
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
 MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:4b-instruct")
 TIMEOUT_SECONDS = int(os.environ.get("OLLAMA_TIMEOUT", "180"))
+# 마지막 질문 뒤 모델을 메모리에 남겨 둘 시간. 배포 환경에서는 길게 잡아 다시 적재하는 대기를 줄인다.
+KEEP_ALIVE = os.environ.get("AI_KEEP_ALIVE", "30m")
 
 PROMPT_VERSION = "p5"
 
@@ -110,7 +112,7 @@ def extract(question, url=None, model=None):
         "format": JSON_SCHEMA,
         "options": OPTIONS,
         "stream": False,
-        "keep_alive": "30m",
+        "keep_alive": KEEP_ALIVE,
     }
     started = time.perf_counter()
     try:

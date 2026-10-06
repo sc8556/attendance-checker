@@ -14,6 +14,8 @@
   form { display:flex; gap:8px; flex-wrap:wrap; }
   input[type=text] { flex:1; min-width: 240px; padding:8px 10px; font-size:1rem; border:1px solid var(--line); border-radius:6px; }
   button { padding:8px 16px; font-size:1rem; border:0; border-radius:6px; background:var(--accent); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.6; cursor:wait; }
+  .busy { border:1px solid var(--accent); border-radius:8px; padding:8px 12px; margin-top:8px; }
   .examples a { margin-right: 10px; font-size:.9rem; }
   .box { border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-top:12px; background:var(--soft); }
   .box.warn { border-color: var(--warn); }
@@ -36,13 +38,40 @@
 <p class="muted">가짜 데이터 · 기간 {{ demo_start }} ~ {{ demo_end }} · 직원 10명 · 시각 어긋남 기준 {{ threshold }}분</p>
 
 <h2>말로 조회하기</h2>
-<form method="get" action="/">
+<form id="ask" method="get" action="/">
   <input type="text" name="q" value="{{ question }}" placeholder="예: 9월 2일 퇴근 미태그 보여줘" maxlength="200">
   <button type="submit">조회</button>
 </form>
+<p id="busy" class="busy" hidden>⏳ AI가 질문을 해석하는 중입니다. CPU로 실행해 수십 초~1분 넘게 걸릴 수 있습니다. 버튼을 다시 누르지 말고 기다려 주세요.</p>
 <p class="examples muted">예시:
   {% for ex in examples %}<a href="/?q={{ ex | urlencode }}">{{ ex }}</a>{% endfor %}
 </p>
+<script>
+  // AI는 질문을 한 번에 하나만 처리한다. 여러 번 누르면 줄이 길어지므로 처리 중에는 다시 보내지 않는다.
+  (function () {
+    var form = document.getElementById("ask");
+    var button = form.querySelector("button");
+    var busy = document.getElementById("busy");
+    var sending = false;
+    function start(event) {
+      if (sending) { event.preventDefault(); return; }
+      sending = true;
+      button.disabled = true;
+      button.textContent = "조회 중…";
+      busy.hidden = false;
+    }
+    function reset() {
+      sending = false;
+      button.disabled = false;
+      button.textContent = "조회";
+      busy.hidden = true;
+    }
+    form.addEventListener("submit", start);
+    document.querySelectorAll(".examples a").forEach(function (a) { a.addEventListener("click", start); });
+    // 뒤로 가기로 돌아왔을 때 '조회 중' 상태가 남지 않게 한다.
+    window.addEventListener("pageshow", function (event) { if (event.persisted) reset(); });
+  })();
+</script>
 <p class="muted">AI(로컬 Qwen3 4B)는 질문에서 조회 조건만 뽑습니다. 앱이 조건을 검사한 뒤 미리 작성한 SQL로 실제 DB를 조회합니다. CPU로 실행해 응답에 수 초~수십 초 걸릴 수 있습니다.</p>
 
 {% if answer %}
