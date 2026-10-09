@@ -10,11 +10,12 @@ from answers import ANSWERS, ISSUE_TYPES
 
 def test_row_counts(conn):
     count = lambda sql: conn.execute(sql).fetchone()[0]
-    assert count("SELECT COUNT(*) FROM employees") == 10
-    assert count("SELECT COUNT(*) FROM manual_sheet") == 100
-    assert count("SELECT COUNT(*) FROM terminal_logs") == 485
-    assert count("SELECT COUNT(*) FROM terminal_logs WHERE direction = 'IN'") == 243
-    assert count("SELECT COUNT(*) FROM terminal_logs WHERE direction = 'OUT'") == 242
+    # 10명(정답 12건 포함) + 정상 기록만 있는 E011(홀수, 하루 4번)·E012(짝수, 하루 6번)
+    assert count("SELECT COUNT(*) FROM employees") == 12
+    assert count("SELECT COUNT(*) FROM manual_sheet") == 120
+    assert count("SELECT COUNT(*) FROM terminal_logs") == 585
+    assert count("SELECT COUNT(*) FROM terminal_logs WHERE direction = 'IN'") == 293
+    assert count("SELECT COUNT(*) FROM terminal_logs WHERE direction = 'OUT'") == 292
 
 
 def test_time_format_is_two_digit(conn):

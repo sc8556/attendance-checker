@@ -97,25 +97,25 @@
     <div class="wrap">
     {% if answer.applied.query_type == 'issues' %}
       <table>
-        <thead><tr><th>종류</th><th>직원</th><th>날짜</th><th>상세</th><th>그날 출입 기록</th></tr></thead>
+        <thead><tr><th>종류</th><th>사번</th><th>이름</th><th>날짜</th><th>상세</th><th>출입 기록</th></tr></thead>
         <tbody>
-        {% for r in answer.rows %}<tr><td><span class="badge {{ badge[r.issue_type] }}">{{ r.issue_type | label }}</span></td><td class="emp">{{ names.get(r.emp_id, '') }}<span class="emp-id">{{ r.emp_id }}</span></td><td class="num">{{ r.work_date }}</td><td>{{ r.detail }}</td>
+        {% for r in answer.rows %}<tr><td><span class="badge {{ badge[r.issue_type] }}">{{ r.issue_type | label }}</span></td><td class="num">{{ r.emp_id }}</td><td>{{ names.get(r.emp_id, '') }}</td><td class="num">{{ r.work_date }}</td><td>{{ r.detail }}</td>
           <td class="logs">{% for l in r.logs %}{{ l.time }} {{ l.direction }}{% if not loop.last %}<br>{% endif %}{% else %}(없음){% endfor %}</td></tr>{% endfor %}
         </tbody>
       </table>
     {% elif answer.applied.query_type == 'employee_records' %}
       <table>
-        <thead><tr><th>직원</th><th>날짜</th><th>수기 출근</th><th>수기 퇴근</th><th>출입 기록</th></tr></thead>
+        <thead><tr><th>사번</th><th>이름</th><th>날짜</th><th>수기 출근</th><th>수기 퇴근</th><th>출입 기록</th></tr></thead>
         <tbody>
-        {% for r in answer.rows %}<tr><td class="emp">{{ names.get(r.emp_id, '') }}<span class="emp-id">{{ r.emp_id }}</span></td><td class="num">{{ r.work_date }}</td><td class="num">{{ r.manual_in or '-' }}</td><td class="num">{{ r.manual_out or '-' }}</td>
+        {% for r in answer.rows %}<tr><td class="num">{{ r.emp_id }}</td><td>{{ names.get(r.emp_id, '') }}</td><td class="num">{{ r.work_date }}</td><td class="num">{{ r.manual_in or '-' }}</td><td class="num">{{ r.manual_out or '-' }}</td>
           <td class="logs">{% for l in r.logs %}{{ l.time }} {{ l.direction }}{% if not loop.last %}<br>{% endif %}{% else %}(없음){% endfor %}</td></tr>{% endfor %}
         </tbody>
       </table>
     {% else %}
       <table>
-        <thead><tr><th>직원</th><th>날짜</th><th>구분</th><th>단말</th><th>수기</th><th>차이</th><th>그날 출입 기록</th></tr></thead>
+        <thead><tr><th>사번</th><th>이름</th><th>날짜</th><th>구분</th><th>단말</th><th>수기</th><th>차이</th><th>출입 기록</th></tr></thead>
         <tbody>
-        {% for r in answer.rows %}<tr><td class="emp">{{ names.get(r.emp_id, '') }}<span class="emp-id">{{ r.emp_id }}</span></td><td class="num">{{ r.work_date }}</td><td>{{ r.side }}</td><td class="num">{{ r.terminal_time }}</td><td class="num">{{ r.manual_time }}</td><td class="num">{{ r.diff_minutes }}분</td>
+        {% for r in answer.rows %}<tr><td class="num">{{ r.emp_id }}</td><td>{{ names.get(r.emp_id, '') }}</td><td class="num">{{ r.work_date }}</td><td>{{ r.side }}</td><td class="num">{{ r.terminal_time }}</td><td class="num">{{ r.manual_time }}</td><td class="num">{{ r.diff_minutes }}분</td>
           <td class="logs">{% for l in r.logs %}{{ l.time }} {{ l.direction }}{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>{% endfor %}
         </tbody>
       </table>
@@ -138,9 +138,9 @@
         <h3><span class="badge {{ badge[t] }}">{{ t | label }}</span><span class="count">{{ rows | length }}건</span></h3>
         {% if rows %}
         <div class="wrap"><table>
-          <thead><tr><th>직원</th><th>날짜</th><th>상세</th></tr></thead>
+          <thead><tr><th>사번</th><th>이름</th><th>날짜</th><th>상세</th></tr></thead>
           <tbody>
-          {% for r in rows %}<tr><td class="emp">{{ names.get(r.emp_id, '') }}<span class="emp-id">{{ r.emp_id }}</span></td><td class="num">{{ r.work_date }}</td><td>{{ r.detail }}</td></tr>{% endfor %}
+          {% for r in rows %}<tr><td class="num">{{ r.emp_id }}</td><td>{{ names.get(r.emp_id, '') }}</td><td class="num">{{ r.work_date }}</td><td>{{ r.detail }}</td></tr>{% endfor %}
           </tbody>
         </table></div>
         {% else %}<p class="empty">이상 없음</p>{% endif %}
@@ -149,7 +149,7 @@
     </div>
   </section>
 
-  <p class="note">※ 참고: 실제 회사 데이터가 아니라, 시연을 위해 임시로 만든 직원 10명(E001~E010)의 평일 10일치 근태 데이터입니다. 수기 근태 100건과 출입 기록 485건이 들어 있습니다.</p>
+  <p class="note">※ 참고: 실제 회사 데이터가 아니라, 시연을 위해 임시로 만든 직원 {{ names | length }}명({{ (names | list)[0] }}~{{ (names | list)[-1] }})의 평일 10일치 근태 데이터입니다. 수기 근태 {{ counts.manual }}건과 출입 기록 {{ counts.logs }}건이 들어 있습니다.</p>
 </main>
 <script>
   // 숫자 카드: 누른 카드만 선택 표시하고 아래 '전체 대조 결과'를 그 종류만 보이게 거른다.

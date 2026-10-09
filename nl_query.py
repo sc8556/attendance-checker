@@ -11,7 +11,7 @@ from datetime import date
 import ai
 import queries
 from answers import ISSUE_TYPES
-from seed import DEMO_END, DEMO_START
+from seed import DEMO_END, DEMO_START, EMPLOYEES
 
 ACTIONS = {"query", "clarify", "unsupported"}
 QUERY_TYPES = {"issues", "employee_records", "time_difference"}
@@ -177,7 +177,7 @@ def ask(question, conn, extractor=None):
     try:
         if applied["employee_id"] and not queries.employee_exists(conn, applied["employee_id"]):
             result.update(status="unknown_employee",
-                          message=f"{applied['employee_id']} 직원은 데모 직원 목록(E001~E010)에 없습니다.")
+                          message=f"{applied['employee_id']} 직원은 데모 직원 목록({EMPLOYEES[0][0]}~{EMPLOYEES[-1][0]})에 없습니다.")
             return result
         rows = run_query(conn, applied)
     except sqlite3.Error as exc:

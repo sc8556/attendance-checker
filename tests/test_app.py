@@ -35,7 +35,7 @@ def test_index_shows_overview(client):
     # 카드 7개(전체 + 종류 6개)가 아래 표를 걸러 보는 버튼이고, 처음엔 전체가 선택돼 있다
     assert html.count("data-filter=") == 7
     assert re.search(r'data-filter="all"[^>]*aria-pressed="true"', html)
-    assert "임시로 만든 직원 10명" in html
+    assert "임시로 만든 직원 12명" in html and "출입 기록 585건" in html
     assert "<title>근태 점검</title>" in html
 
 
@@ -93,8 +93,9 @@ def test_index_question(client, monkeypatch):
     html = client.get("/?q=9월 2일 퇴근 미태그 보여줘").get_data(as_text=True)
     assert "결과 1건" in html and "15:13 IN" in html
     assert "조회 완료" in html  # 결과 위 상태 배지
-    # 표에는 이름과 사번이 함께 보인다
-    assert re.search(r"이서연.*?E002", html, re.S)
+    # 사번과 이름은 따로 된 칸이다
+    assert "<th>종류</th><th>사번</th><th>이름</th><th>날짜</th><th>상세</th><th>출입 기록</th>" in html
+    assert '<td class="num">E002</td><td>이서연</td>' in html
 
 
 def test_api_ask(client, monkeypatch):

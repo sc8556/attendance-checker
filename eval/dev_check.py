@@ -34,6 +34,9 @@ DEV_QUESTIONS = [
     ("12월 24일 출근 미태그 보여줘", "out_of_range", {"date_from": "2026-12-24", "date_to": "2026-12-24", "issue_type": "출근 미태그"}),
     ("9월 14일 시각 어긋남(출근) 보여줘", "ok", {"date_from": "2026-09-14", "date_to": "2026-09-14", "issue_type": "시각 어긋남(출근)"}),
     ("E010 9월 14일 출입 기록", "ok", {"query_type": "employee_records", "employee_id": "E010", "date_from": "2026-09-14", "date_to": "2026-09-14"}),
+    # p7: 새로 추가한 직원(E011 조재희·E012 박다솜)을 이름으로 묻는 질문
+    ("박다솜 9월 9일 기록 보여줘", "ok", {"query_type": "employee_records", "employee_id": "E012", "date_from": "2026-09-09", "date_to": "2026-09-09"}),
+    ("조재희 9월에 문제 있었어?", "empty", {"query_type": "issues", "employee_id": "E011"}),
 ]
 
 

@@ -17,10 +17,12 @@ WORK_DATES = [
     "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-07",
     "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-14",
 ]
-# (사번, 이름). 이름은 시연용으로 지어낸 것이다.
+# (사번, 이름). 사번은 E001부터 빈 번호 없이 이어진다(normal_logs의 홀짝 규칙이 사번 숫자를 씀).
+# E011·E012는 나중에 추가한 직원으로, 문제를 심지 않은 정상 기록만 있다(정답 12건은 E001~E010).
 EMPLOYEES = [
     ("E001", "김민준"), ("E002", "이서연"), ("E003", "박지훈"), ("E004", "최수아"), ("E005", "정도윤"),
     ("E006", "강하은"), ("E007", "조현우"), ("E008", "윤지아"), ("E009", "임태윤"), ("E010", "한예린"),
+    ("E011", "조재희"), ("E012", "박다솜"),
 ]
 
 MANUAL_IN = "08:00"
@@ -77,8 +79,7 @@ def build(conn):
 
     rows = []
     for day_idx, work_date in enumerate(WORK_DATES):
-        for emp_no in range(1, 11):
-            emp_id = f"E{emp_no:03d}"
+        for emp_no, (emp_id, _name) in enumerate(EMPLOYEES, 1):
             conn.execute("INSERT INTO manual_sheet VALUES (?, ?, ?, ?)", (emp_id, work_date, MANUAL_IN, MANUAL_OUT))
             for slot, log_time, direction in normal_logs(emp_no, day_idx):
                 rows.append([emp_id, work_date, log_time, direction, slot])

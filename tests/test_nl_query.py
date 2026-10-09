@@ -80,6 +80,10 @@ def test_clarify_and_unsupported_do_not_query(conn, action, monkeypatch):
 def test_unknown_employee(conn):
     r = ask(conn, action="query", query_type="employee_records", date_from="2026-09-02", date_to="2026-09-02", employee_id="E099")
     assert r["status"] == "unknown_employee"
+    assert "E001~E012" in r["message"]  # 안내하는 직원 범위는 실제 직원 목록을 따른다
+    # 새로 추가한 직원은 있는 직원으로 조회된다
+    r = ask(conn, action="query", query_type="employee_records", date_from="2026-09-02", date_to="2026-09-02", employee_id="E012")
+    assert r["status"] == "ok"
 
 
 @pytest.mark.parametrize("fields, reason", [

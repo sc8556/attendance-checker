@@ -19,7 +19,8 @@ TIMEOUT_SECONDS = int(os.environ.get("OLLAMA_TIMEOUT", "180"))
 KEEP_ALIVE = os.environ.get("AI_KEEP_ALIVE", "30m")
 
 # p6: 직원 이름을 '직원01' 형식에서 사람 이름으로 바꿈(직원 목록과 예시 한 줄). 규칙은 p5와 같다.
-PROMPT_VERSION = "p6"
+# p7: 직원 목록에 E011 조재희·E012 박다솜 추가. 그 밖의 지시는 p6과 같다.
+PROMPT_VERSION = "p7"
 
 # 평가 전에 고정한 생성 설정. 조건 추출 작업이라 무작위성을 끈다(temperature 0, seed 고정).
 OPTIONS = {

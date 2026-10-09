@@ -217,8 +217,6 @@ td { padding: 10px 12px; vertical-align: top; border-bottom: 1px solid var(--lin
 tbody tr:last-child td { border-bottom: 0; }
 .num, .logs { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .logs { color: var(--logs); }
-.emp { white-space: nowrap; }
-.emp-id { margin-left: 6px; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .badge {
   display: inline-block; padding: 3px 9px; white-space: nowrap;

@@ -51,11 +51,13 @@ def index():
     try:
         answer = nl_query.ask(question, conn) if question else None
         results, groups = overview(conn)
+        counts = {"manual": conn.execute("SELECT COUNT(*) FROM manual_sheet").fetchone()[0],
+                  "logs": conn.execute("SELECT COUNT(*) FROM terminal_logs").fetchone()[0]}
     finally:
         conn.close()
     return render_template(
         "index.html", question=question, answer=answer, results=results, groups=groups,
-        examples=EXAMPLES, badge=BADGES, names=dict(seed.EMPLOYEES), demo_start=seed.DEMO_START, demo_end=seed.DEMO_END,
+        examples=EXAMPLES, badge=BADGES, names=dict(seed.EMPLOYEES), counts=counts, demo_start=seed.DEMO_START, demo_end=seed.DEMO_END,
         threshold=checks.TIME_DIFF_MINUTES,
     )
 
