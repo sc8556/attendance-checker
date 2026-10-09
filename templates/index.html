@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>근태 점검</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='14' height='14' rx='4' fill='%2379bfe8'/%3E%3C/svg%3E">
 <script>
   // 직접 고른 화면 밝기(light/dark)를 화면이 그려지기 전에 적용한다. 고른 적이 없으면 기기 설정을 따른다(style.css).
   try { var saved = localStorage.getItem("theme"); if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved; } catch (e) {}
@@ -48,6 +49,7 @@
     <form id="ask" class="ask" method="get" action="/">
       <input type="text" name="q" value="{{ question }}" placeholder="예: 9월 2일 퇴근 미태그 보여줘" maxlength="200" aria-label="질문">
       <button type="submit">조회</button>
+      {% if question %}<a class="reset" href="/">초기화</a>{% endif %}
     </form>
     <div class="examples"><span class="examples-label">예시</span>{% for label, q in examples %}<a class="chip" href="/?q={{ q | urlencode }}" title="{{ q }}">{{ label }}</a>{% endfor %}</div>
     <p class="hint">AI(로컬 Qwen3 4B)는 조건만 추출 · 앱이 검증한 뒤 고정 SQL로 조회</p>
@@ -84,7 +86,7 @@
   {% set st = answer.status %}
   {% set tone = 'bad' if st in ['ai_error','db_error','invalid'] else ('warn' if st in ['clarify','unsupported','out_of_range','unknown_employee'] else 'ok') %}
   {% set status_names = {'ok': '조회 완료', 'empty': '결과 없음', 'clarify': '확인 필요', 'unsupported': '지원 범위 밖', 'out_of_range': '기간 밖', 'unknown_employee': '직원 없음', 'ai_error': '오류', 'db_error': '오류', 'invalid': '해석 실패'} %}
-  <section class="panel result">
+  <section class="panel result" id="result">
     <div class="result-head"><span class="status {{ tone }}">{{ status_names.get(st, st) }}</span><span class="result-q">{{ answer.question }}</span></div>
     {% if answer.applied %}
     <div class="conds">{% for k, v in answer.applied.labels %}<span class="cond"><b>{{ k }}</b>{% if k == '직원' and v in names %}{{ names[v] }} ({{ v }}){% else %}{{ v | label }}{% endif %}</span>{% endfor %}</div>
@@ -128,6 +130,15 @@
       <pre>{{ answer.ai.raw if answer.ai else answer.invalid_reason }}</pre>
     </details>
   </section>
+  <script>
+    // 조회 결과가 화면 아래(휴대폰 등)에 있으면 결과 위치까지 내려 준다.
+    (function () {
+      var result = document.getElementById("result");
+      if (result.getBoundingClientRect().top > window.innerHeight * 0.6) {
+        result.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    })();
+  </script>
   {% endif %}
 
   <section id="overview">

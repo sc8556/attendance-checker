@@ -46,6 +46,27 @@ def test_out_of_range(conn):
     assert "2026-09-01 ~ 2026-09-14" in r["message"]
 
 
+def test_partial_range_is_clipped(conn):
+    # 보유 기간과 일부만 겹치면 겹치는 날짜만 조회하고, 자른 사실을 조건에 표시한다
+    r = ask(conn, action="query", query_type="issues", date_from="2026-08-25", date_to="2026-09-30", issue_type="퇴근 미태그")
+    assert r["status"] == "ok"
+    assert (r["applied"]["date_from"], r["applied"]["date_to"]) == ("2026-09-01", "2026-09-14")
+    assert [row["emp_id"] for row in r["rows"]] == ["E002", "E005", "E009"]
+    period = dict(r["applied"]["labels"])["기간"]
+    assert "요청 2026-08-25 ~ 2026-09-30" in period and "보유 기간만" in period
+
+
+def test_partial_range_empty_result(conn):
+    r = ask(conn, action="query", query_type="issues", date_from="2026-09-01", date_to="2026-09-30", employee_id="E011")
+    assert r["status"] == "empty"
+
+
+def test_range_touching_outside_only(conn):
+    # 겹치는 날이 하루도 없으면 그대로 기간 밖
+    r = ask(conn, action="query", query_type="issues", date_from="2026-08-20", date_to="2026-08-31")
+    assert r["status"] == "out_of_range"
+
+
 def test_employee_records(conn):
     r = ask(conn, action="query", query_type="employee_records", date_from="2026-09-02", date_to="2026-09-02", employee_id="E002")
     assert r["status"] == "ok"

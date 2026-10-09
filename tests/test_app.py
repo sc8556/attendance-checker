@@ -37,6 +37,8 @@ def test_index_shows_overview(client):
     assert re.search(r'data-filter="all"[^>]*aria-pressed="true"', html)
     assert "임시로 만든 직원 12명" in html and "출입 기록 585건" in html
     assert "<title>근태 점검</title>" in html
+    assert 'rel="icon"' in html
+    assert 'class="reset"' not in html  # 조회 전에는 초기화 버튼이 없다
 
 
 def test_index_assets_and_examples(client):
@@ -93,6 +95,7 @@ def test_index_question(client, monkeypatch):
     html = client.get("/?q=9월 2일 퇴근 미태그 보여줘").get_data(as_text=True)
     assert "결과 1건" in html and "15:13 IN" in html
     assert "조회 완료" in html  # 결과 위 상태 배지
+    assert '<a class="reset" href="/">초기화</a>' in html  # 조회 후에는 첫 화면으로 돌아가는 버튼
     # 사번과 이름은 따로 된 칸이다
     assert "<th>종류</th><th>사번</th><th>이름</th><th>날짜</th><th>상세</th><th>출입 기록</th>" in html
     assert '<td class="num">E002</td><td>이서연</td>' in html

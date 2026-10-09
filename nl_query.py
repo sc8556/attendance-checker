@@ -108,20 +108,31 @@ def parse(raw):
 
 
 def applied_conditions(cond):
-    """화면에 보여줄 실제 적용 조건. 생략된 값은 기본값과 함께 표시한다."""
+    """화면에 보여줄 실제 적용 조건. 생략된 값은 기본값과 함께 표시한다.
+
+    요청 기간이 보유 기간과 일부만 겹치면 겹치는 날짜로 자르고 그 사실을 표시한다.
+    하루도 겹치지 않으면 자르지 않고 그대로 두어 ask()가 기간 밖으로 안내한다.
+    """
     omitted_date = cond["date_from"] is None
+    d_from = DEMO_START if omitted_date else cond["date_from"]
+    d_to = DEMO_END if omitted_date else cond["date_to"]
+    date_note = "날짜 생략 → 전체 데모 기간" if omitted_date else None
+    overlaps = d_from <= DEMO_END and d_to >= DEMO_START
+    if overlaps and (d_from < DEMO_START or d_to > DEMO_END):
+        date_note = f"요청 {d_from} ~ {d_to} → 보유 기간만"
+        d_from, d_to = max(d_from, DEMO_START), min(d_to, DEMO_END)
     applied = {
         "query_type": cond["query_type"],
-        "date_from": DEMO_START if omitted_date else cond["date_from"],
-        "date_to": DEMO_END if omitted_date else cond["date_to"],
-        "date_note": "날짜 생략 → 전체 데모 기간" if omitted_date else None,
+        "date_from": d_from,
+        "date_to": d_to,
+        "date_note": date_note,
         "employee_id": cond["employee_id"],
         "issue_type": cond["issue_type"],
         "time_side": cond["time_side"],
         "min_difference_minutes": cond["min_difference_minutes"],
     }
     labels = [("조회", QUERY_TYPE_LABELS[cond["query_type"]]),
-              ("기간", f"{applied['date_from']} ~ {applied['date_to']}" + (" (날짜 생략 → 전체 데모 기간)" if omitted_date else "")),
+              ("기간", f"{applied['date_from']} ~ {applied['date_to']}" + (f" ({date_note})" if date_note else "")),
               ("직원", cond["employee_id"] or "전체 직원")]
     if cond["query_type"] == "issues":
         labels.append(("문제 종류", cond["issue_type"] or "전체"))
