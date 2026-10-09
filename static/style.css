@@ -1,0 +1,259 @@
+/* 근태 점검 화면. 흰 바탕 + 하늘색 파스텔, 어두운 화면 지원.
+   하늘색은 누르는 곳(버튼·선택된 카드·칩)에만 쓰고, 파스텔 위 글자는 진한 남청색으로 쓴다.
+   색은 모두 아래 변수로만 쓴다. 어두운 화면은 같은 이름의 변수 값만 바꾼다. */
+
+:root {
+  color-scheme: light;
+  --sky-900: #123d5c;  /* 파스텔 위 글자 */
+  --sky-700: #23709f;  /* 강조 글자 */
+  --sky-400: #79bfe8;  /* 선택 테두리·표시 */
+  --sky-200: #bfe2f7;  /* 버튼 */
+  --sky-hover: #a9d8f4;
+  --sky-100: #dcf0fc;  /* 선택된 카드 */
+  --sky-50: #f0f8fe;   /* 조건 칩·처리 중 */
+  --fg: #1a2433;
+  --muted: #667085;
+  --logs: #475467;
+  --line: #e4e9f0;
+  --line-soft: #eef1f5;
+  --bg: #f7f9fb;
+  --card: #fff;
+  --th-bg: #f8fafc;
+  --input-bg: #fff;
+  --input-line: #d3dae4;
+  --placeholder: #98a2b3;
+  --warn-fg: #8a4b00; --warn-bg: #fdeccb;
+  --bad-fg: #9b1c1c;  --bad-bg: #fde3e3;
+  /* 문제 종류 6개: 같은 밝기의 파스텔 */
+  --t1-c: #3d4f8a; --t1-bg: #e4e9fb;  /* 중복 기록: 연청 */
+  --t2-c: #4b5563; --t2-bg: #eceef2;  /* 기록 없음: 회색 */
+  --t3-c: #94461a; --t3-bg: #fde8da;  /* 출근 미태그: 복숭아 */
+  --t4-c: #9b2f47; --t4-bg: #fbe4e8;  /* 퇴근 미태그: 분홍 */
+  --t5-c: #1d6a52; --t5-bg: #dcf3ea;  /* 출근 시간 불일치: 민트 */
+  --t6-c: #775a00; --t6-bg: #fbf2cc;  /* 퇴근 시간 불일치: 레몬 */
+  --radius: 12px;
+}
+
+/* 어두운 화면: 기기 설정이 어둡고 직접 '밝게'를 고르지 않았을 때, 또는 직접 '어둡게'를 골랐을 때.
+   두 블록의 값은 같아야 한다. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --sky-900: #d6ecfb; --sky-700: #8fcbf0; --sky-400: #4a9bd1; --sky-200: #2c6a96; --sky-hover: #357aa9;
+    --sky-100: #16334a; --sky-50: #132a3d;
+    --fg: #e4eaf2; --muted: #93a1b4; --logs: #b3c0d0;
+    --line: #263345; --line-soft: #1f2b3a;
+    --bg: #0f1722; --card: #17212e; --th-bg: #1b2635;
+    --input-bg: #111b27; --input-line: #2c3a4d; --placeholder: #6b7a8f;
+    --warn-fg: #f5c77e; --warn-bg: #3a2a12;
+    --bad-fg: #f6a5a5;  --bad-bg: #3d1b1e;
+    --t1-c: #b4c3f5; --t1-bg: #222c4d;
+    --t2-c: #c3c9d3; --t2-bg: #2a313c;
+    --t3-c: #f6c2a0; --t3-bg: #3d2719;
+    --t4-c: #f4b0be; --t4-bg: #3d1f27;
+    --t5-c: #9edfc4; --t5-bg: #16352b;
+    --t6-c: #ecd88a; --t6-bg: #3a3212;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --sky-900: #d6ecfb; --sky-700: #8fcbf0; --sky-400: #4a9bd1; --sky-200: #2c6a96; --sky-hover: #357aa9;
+  --sky-100: #16334a; --sky-50: #132a3d;
+  --fg: #e4eaf2; --muted: #93a1b4; --logs: #b3c0d0;
+  --line: #263345; --line-soft: #1f2b3a;
+  --bg: #0f1722; --card: #17212e; --th-bg: #1b2635;
+  --input-bg: #111b27; --input-line: #2c3a4d; --placeholder: #6b7a8f;
+  --warn-fg: #f5c77e; --warn-bg: #3a2a12;
+  --bad-fg: #f6a5a5;  --bad-bg: #3d1b1e;
+  --t1-c: #b4c3f5; --t1-bg: #222c4d;
+  --t2-c: #c3c9d3; --t2-bg: #2a313c;
+  --t3-c: #f6c2a0; --t3-bg: #3d2719;
+  --t4-c: #f4b0be; --t4-bg: #3d1f27;
+  --t5-c: #9edfc4; --t5-bg: #16352b;
+  --t6-c: #ecd88a; --t6-bg: #3a3212;
+}
+
+/* app.py의 BADGES 순서 = answers.ISSUE_TYPES 순서 */
+.t1 { --c: var(--t1-c); --c-bg: var(--t1-bg); }
+.t2 { --c: var(--t2-c); --c-bg: var(--t2-bg); }
+.t3 { --c: var(--t3-c); --c-bg: var(--t3-bg); }
+.t4 { --c: var(--t4-c); --c-bg: var(--t4-bg); }
+.t5 { --c: var(--t5-c); --c-bg: var(--t5-bg); }
+.t6 { --c: var(--t6-c); --c-bg: var(--t6-bg); }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Pretendard Variable", Pretendard, "Malgun Gothic", system-ui, sans-serif;
+  line-height: 1.5;
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 상단바 */
+.topbar { background: var(--card); border-bottom: 1px solid var(--line); }
+.topbar-inner {
+  max-width: 1120px; margin: 0 auto; padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: center; gap: 4px 16px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 700; letter-spacing: -.01em; }
+.mark { width: 14px; height: 14px; border-radius: 4px; background: var(--sky-400); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.meta { font-size: .88rem; color: var(--muted); }
+
+/* 밝기 전환 버튼: 지금 밝으면 달, 어두우면 해를 보여 준다 */
+.theme-toggle {
+  display: grid; place-items: center; width: 36px; height: 36px; padding: 0;
+  color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 10px; cursor: pointer;
+}
+.theme-toggle:hover { color: var(--fg); border-color: var(--sky-400); }
+.theme-toggle:focus-visible { outline: 3px solid var(--sky-200); outline-offset: 1px; }
+.icon-sun { display: none; }
+:root[data-theme="dark"] .icon-sun { display: block; }
+:root[data-theme="dark"] .icon-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .icon-sun { display: block; }
+  :root:not([data-theme="light"]) .icon-moon { display: none; }
+}
+
+.container { max-width: 1120px; margin: 0 auto; padding: 24px 20px; }
+
+/* 숫자 카드 = 아래 표를 걸러 보는 버튼. 선택된 카드만 하늘색. */
+.stats { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+.stat {
+  display: flex; flex-direction: column; gap: 4px; padding: 14px 16px;
+  font: inherit; text-align: left; color: inherit; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+.stat:hover { border-color: var(--sky-400); }
+.stat:focus-visible { outline: 3px solid var(--sky-200); outline-offset: 1px; }
+.stat[aria-pressed="true"] { background: var(--sky-100); border-color: var(--sky-400); box-shadow: inset 0 0 0 1px var(--sky-400); color: var(--sky-900); }
+.stat-num { font-size: 1.6rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat-num small { margin-left: 2px; font-size: .85rem; font-weight: 600; }
+.stat-label { font-size: .85rem; color: var(--muted); }
+.stat[aria-pressed="true"] .stat-label { color: var(--sky-900); font-weight: 600; }
+
+/* 공통 패널 */
+.panel {
+  margin-top: 16px; padding: 22px 24px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.panel-title { margin: 0 0 14px; font-size: 1.1rem; font-weight: 700; }
+
+/* 조회창 */
+.ask { display: flex; gap: 8px; }
+.ask input {
+  flex: 1; min-width: 0; padding: 12px 14px;
+  font: inherit; font-size: 1rem; color: inherit;
+  background: var(--input-bg); border: 1px solid var(--input-line); border-radius: 10px;
+}
+.ask input::placeholder { color: var(--placeholder); }
+.ask input:focus { outline: none; border-color: var(--sky-400); box-shadow: 0 0 0 3px var(--sky-100); }
+.ask button {
+  flex: none; padding: 0 24px;
+  font: inherit; font-weight: 700; color: var(--sky-900);
+  background: var(--sky-200); border: 0; border-radius: 10px; cursor: pointer;
+}
+.ask button:hover { background: var(--sky-hover); }
+.ask button:disabled { opacity: .6; cursor: wait; }
+
+.examples { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+.examples-label { margin-right: 4px; font-size: .85rem; font-weight: 600; color: var(--muted); }
+.chip {
+  padding: 5px 12px; font-size: .85rem; color: var(--fg); text-decoration: none;
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+}
+.chip:hover { color: var(--sky-900); background: var(--sky-50); border-color: var(--sky-400); }
+.hint { margin: 14px 0 0; font-size: .85rem; color: var(--muted); }
+
+/* 처리 중 표시. hidden 속성이 display:flex에 덮이지 않게 따로 막는다. */
+.busy {
+  display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px;
+  font-size: .9rem; color: var(--sky-900); background: var(--sky-50); border-radius: 8px;
+}
+.busy[hidden] { display: none; }
+.spinner {
+  flex: none; width: 16px; height: 16px;
+  border: 2px solid var(--sky-200); border-top-color: var(--sky-700); border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+
+/* 조회 결과: 맨 위 상태 배지로 정상·확인 필요·오류를 구분 */
+.result-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.status { padding: 3px 10px; font-size: .8rem; font-weight: 700; border-radius: 999px; white-space: nowrap; }
+.status.ok { color: var(--sky-900); background: var(--sky-100); }
+.status.warn { color: var(--warn-fg); background: var(--warn-bg); }
+.status.bad { color: var(--bad-fg); background: var(--bad-bg); }
+.result-q { font-size: .95rem; color: var(--fg); }
+.conds { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.cond { padding: 4px 10px; font-size: .85rem; background: var(--sky-50); border: 1px solid var(--sky-100); border-radius: 6px; }
+.cond b { margin-right: 6px; font-weight: 600; color: var(--sky-700); }
+.msg { margin: 14px 0 0; font-size: 1rem; font-weight: 700; }
+.sub { margin: 4px 0 0; font-size: .85rem; color: var(--muted); }
+
+.raw { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+.raw summary { font-size: .85rem; color: var(--muted); cursor: pointer; }
+.raw pre {
+  margin: 8px 0 0; padding: 12px 14px; font-size: .82rem;
+  color: var(--sky-900); background: var(--sky-50); border-radius: 8px;
+  white-space: pre-wrap; word-break: break-all;
+}
+
+/* 표: 글꼴 하나로, 숫자는 폭을 같게 해 줄을 맞춘다 */
+.wrap { overflow-x: auto; margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th {
+  padding: 9px 12px; text-align: left; white-space: nowrap;
+  font-size: .8rem; font-weight: 600; color: var(--muted);
+  background: var(--th-bg); border-bottom: 1px solid var(--line);
+}
+td { padding: 10px 12px; vertical-align: top; border-bottom: 1px solid var(--line-soft); }
+tbody tr:last-child td { border-bottom: 0; }
+.num, .logs { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.logs { color: var(--logs); }
+.emp { white-space: nowrap; }
+.emp-id { margin-left: 6px; font-size: .8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.badge {
+  display: inline-block; padding: 3px 9px; white-space: nowrap;
+  font-size: .8rem; font-weight: 600; color: var(--c, var(--muted)); background: var(--c-bg, var(--line-soft)); border-radius: 6px;
+}
+
+/* 전체 대조 결과 */
+#overview { scroll-margin-top: 16px; }
+.section-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 36px 0 0; font-size: 1.15rem; font-weight: 700; }
+.count { font-size: .85rem; font-weight: 400; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 14px; }
+.grid.single { grid-template-columns: 1fr; }
+.grid .panel { margin-top: 0; }
+.group[hidden] { display: none; }
+.group h3 { display: flex; justify-content: space-between; align-items: center; margin: 0; font-size: 1rem; }
+.empty { margin: 12px 0 0; font-size: .9rem; color: var(--muted); }
+
+.note { margin: 32px 0 8px; font-size: .85rem; color: var(--muted); }
+
+/* 화면이 좁을 때: 카드 4열 → 휴대폰에서도 조회창이 첫 화면에 보이게 */
+@media (max-width: 900px) {
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .container { padding: 16px; }
+  .topbar-inner { padding: 10px 16px; }
+  .meta { display: none; }
+  .stats { gap: 6px; }
+  .stat { padding: 8px 10px; gap: 2px; }
+  .stat-num { font-size: 1.2rem; }
+  .stat-num small { font-size: .7rem; }
+  .stat-label { font-size: .72rem; line-height: 1.3; }
+  .panel { padding: 16px; }
+  .ask button { padding: 0 16px; }
+}

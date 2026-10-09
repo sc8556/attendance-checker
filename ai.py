@@ -18,7 +18,8 @@ TIMEOUT_SECONDS = int(os.environ.get("OLLAMA_TIMEOUT", "180"))
 # 마지막 질문 뒤 모델을 메모리에 남겨 둘 시간. 배포 환경에서는 길게 잡아 다시 적재하는 대기를 줄인다.
 KEEP_ALIVE = os.environ.get("AI_KEEP_ALIVE", "30m")
 
-PROMPT_VERSION = "p5"
+# p6: 직원 이름을 '직원01' 형식에서 사람 이름으로 바꿈(직원 목록과 예시 한 줄). 규칙은 p5와 같다.
+PROMPT_VERSION = "p6"
 
 # 평가 전에 고정한 생성 설정. 조건 추출 작업이라 무작위성을 끈다(temperature 0, seed 고정).
 OPTIONS = {
@@ -91,7 +92,7 @@ SYSTEM_PROMPT = f"""너는 근태 조회 앱의 질문 해석기다. 사용자�
 {{"action": "query", "query_type": "issues", "date_from": "2026-09-10", "date_to": "2026-09-10", "employee_id": null, "issue_type": "중복 기록", "time_side": null, "min_difference_minutes": null, "question": null}}
 질문: 9월 9일 퇴근 시각이 20분 이상 차이 나는 사람
 {{"action": "query", "query_type": "time_difference", "date_from": "2026-09-09", "date_to": "2026-09-09", "employee_id": null, "issue_type": null, "time_side": "퇴근", "min_difference_minutes": 20, "question": null}}
-질문: 직원05 9월 7일부터 9월 9일까지 기록
+질문: 정도윤 9월 7일부터 9월 9일까지 기록
 {{"action": "query", "query_type": "employee_records", "date_from": "2026-09-07", "date_to": "2026-09-09", "employee_id": "E005", "issue_type": null, "time_side": null, "min_difference_minutes": null, "question": null}}
 질문: 기록 없음 전부 보여줘
 {{"action": "query", "query_type": "issues", "date_from": null, "date_to": null, "employee_id": null, "issue_type": "기록 없음", "time_side": null, "min_difference_minutes": null, "question": null}}"""

@@ -19,7 +19,7 @@ import seed  # noqa: E402
 DEV_QUESTIONS = [
     ("9월 4일 기록 없는 직원 알려줘", "ok", {"query_type": "issues", "date_from": "2026-09-04", "issue_type": "기록 없음"}),
     ("9월 11일에 퇴근 체크 안 한 사람", "ok", {"query_type": "issues", "date_from": "2026-09-11", "issue_type": "퇴근 미태그"}),
-    ("직원07 9월 10일 출입 기록", "ok", {"query_type": "employee_records", "employee_id": "E007", "date_from": "2026-09-10"}),
+    ("조현우 9월 10일 출입 기록", "ok", {"query_type": "employee_records", "employee_id": "E007", "date_from": "2026-09-10"}),
     ("9월 8일 퇴근 시각이 수기와 40분 이상 다른 직원", "ok", {"query_type": "time_difference", "time_side": "퇴근", "min_difference_minutes": 40}),
     ("출근 미태그 전체 보여줘", "ok", {"query_type": "issues", "date_from": None, "issue_type": "출근 미태그"}),
     ("근무 태도가 안 좋은 직원 알려줘", "clarify|unsupported", {}),
@@ -28,7 +28,7 @@ DEV_QUESTIONS = [
     ("9월 1일부터 3일까지 문제 전부 보여줘", "ok", {"query_type": "issues", "date_from": "2026-09-01", "date_to": "2026-09-03", "issue_type": None}),
     ("E005 급여 계산해줘", "unsupported|clarify", {}),
     ("9월 14일 출근 시간이 15분 이상 차이 나는 사람", "ok", {"query_type": "time_difference", "time_side": "출근", "min_difference_minutes": 15}),
-    ("직원03 9월 3일에 무슨 문제 있었어?", "ok", {"query_type": "issues", "employee_id": "E003", "date_from": "2026-09-03"}),
+    ("박지훈 9월 3일에 무슨 문제 있었어?", "ok", {"query_type": "issues", "employee_id": "E003", "date_from": "2026-09-03"}),
     # 공식 1차 평가 실패(하루 질문의 date_to null) 이후 추가한 개발 질문
     ("9월 11일 출근 시간이 25분 이상 차이 나는 직원 보여줘", "empty", {"query_type": "time_difference", "date_from": "2026-09-11", "date_to": "2026-09-11", "time_side": "출근", "min_difference_minutes": 25}),
     ("12월 24일 출근 미태그 보여줘", "out_of_range", {"date_from": "2026-12-24", "date_to": "2026-12-24", "issue_type": "출근 미태그"}),
