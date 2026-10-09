@@ -1,0 +1,56 @@
+{
+  "label": "2026-10-09-p7-attempt5",
+  "official": true,
+  "note": "앱 처리 규칙 변경 후 재확인: 보유 기간과 일부만 겹치는 요청은 겹치는 날짜로 잘라 조회(전혀 안 겹치면 기존대로 기간 밖). 초기화 버튼·자동 이동·탭 아이콘(화면). 지시 p7 그대로, 문항·기대값·통과 기준 변경 없음.",
+  "started_at": "2026-10-09T13:47:36",
+  "git": {
+    "commit": "900d4fc",
+    "dirty": false
+  },
+  "model": {
+    "model": "qwen3:4b-instruct",
+    "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "ollama_version": "0.35.1"
+  },
+  "prompt_version": "p7",
+  "prompt_fingerprint": "ce83b7cdeeef",
+  "options": {
+    "temperature": 0,
+    "seed": 42,
+    "num_ctx": 2048,
+    "num_predict": 300
+  },
+  "questions_version": "q1",
+  "questions_sha256": "b25dbdb14f6b",
+  "data_fingerprint": "324cc5194ac5",
+  "host": {
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "cpu": "13th Gen Intel(R) Core(TM) i7-1360P",
+    "cpus": 16,
+    "mem_total_kb": 7909716
+  },
+  "warmup": {
+    "question": "워밍업: 9월 9일 기록 없음 보여줘",
+    "note": "모델 적재용. 점수에 포함하지 않음",
+    "raw": "{\"action\": \"query\", \"date_from\": \"2026-09-09\", \"date_to\": \"2026-09-09\", \"employee_id\": null, \"issue_type\": \"기록 없음\", \"min_difference_minutes\": null, \"query_type\": \"issues\", \"question\": null, \"time_side\": null}",
+    "elapsed_seconds": 9.115,
+    "load_seconds": 0.003,
+    "prompt_eval_seconds": 0.821,
+    "eval_seconds": 8.273,
+    "prompt_tokens": 1621,
+    "output_tokens": 80
+  },
+  "finished_at": "2026-10-09T13:51:44",
+  "summary": {
+    "passed": 24,
+    "total": 24,
+    "elapsed_seconds": {
+      "min": 7.449,
+      "median": 10.325,
+      "max": 12.551,
+      "mean": 10.331
+    },
+    "failed_runs": []
+  }
+}
