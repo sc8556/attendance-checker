@@ -1,12 +1,12 @@
 # 근태 점검 (attendance-checker)
 
-수기 근태 기록과 출입 단말 기록을 대조해서 문제가 있는 기록을 찾고, 말로 질문하면 AI가 조건을 뽑아 조회해 주는 앱.
+수기 근태 기록과 출입 단말 기록을 대조해서 문제가 있는 기록을 찾고, 말로 질문하면 AI가 조건을 뽑아 조회해 주는 앱. 같은 판정을 MCP 서버로도 열어 두어 Claude Code 같은 AI 도구에서 바로 조회할 수 있음.
 
 | 항목 | 내용 |
 |---|---|
-| 기술 | Python Flask, SQLite, Ollama + Qwen3 4B, Docker |
+| 기술 | Python Flask, SQLite, Ollama + Qwen3 4B, MCP(Python SDK), Docker |
 | AI 역할 | 질문에서 조회 조건만 뽑음. 실제 조회는 앱에 미리 만들어 둔 SQL이 함 |
-| 검증 | 정답 12건 자동 테스트 통과, AI 평가 24회 중 24회 통과 |
+| 검증 | 정답 12건 자동 테스트 통과(화면·MCP 경로 모두), AI 평가 24회 중 24회 통과 |
 | 데이터 | 시연용 가짜 데이터 (직원 12명, 2026-09-01부터 09-14까지 평일) |
 
 ## 화면
@@ -41,6 +41,81 @@
 4. 미리 만들어 둔 SQL에 조건을 넣어 조회하고 결과를 표로 보여 줌
 
 AI에게 SQL을 직접 쓰게 하지 않은 이유는 검사 때문. AI가 만든 SQL은 매번 맞는지, 데이터를 지우거나 너무 많이 읽지 않는지 확인해야 함. 조건만 받으면 앱이 값 하나하나를 검사할 수 있고, 결과는 항상 실제 DB에서 나옴.
+
+## MCP 서버로 쓰기
+
+같은 판정을 세 경로로 쓸 수 있음. ① 웹 화면 ② 자연어 질문(앱 안의 Ollama가 조건을 뽑음) ③ MCP 서버(Claude Code, Claude Desktop 같은 AI 도구가 조건을 넣어 부름). 세 경로 모두 조건을 받아 검사한 뒤 미리 만들어 둔 SQL로 조회함. AI 도구가 SQL을 쓰거나 DB에 직접 붙지 않음.
+
+MCP(Model Context Protocol)는 AI 도구가 바깥 프로그램의 기능을 「도구」로 부르게 하는 표준. `mcp_server.py`가 공식 Python SDK(`mcp` 패키지)로 만든 서버이고, 도구는 4개 모두 읽기 전용임.
+
+| 도구 | 하는 일 | 인자 |
+|---|---|---|
+| `data_range` | 데이터 기간, 근무일, 직원 목록, 문제 종류 목록. AI 도구가 조건을 정하기 전에 먼저 부름 | 없음 |
+| `find_issues` | 문제 기록 찾기 (`checks.py`의 6종 판정, 화면의 표와 같은 결과) | date_from, date_to, emp_id, issue_type (모두 생략 가능) |
+| `employee_records` | 직원 한 명의 날짜별 수기 시각과 출입 기록 | emp_id, date_from, date_to |
+| `time_difference` | 수기와 단말 시각이 N분 이상 차이 나는 기록 | side(출근/퇴근), min_diff, date_from, date_to, emp_id |
+
+### Claude Code에서 쓴 화면
+
+"9월 2일 퇴근 미태그 보여줘"라고 물으면 Claude Code가 `data_range`로 기간과 문제 종류 이름을 확인한 뒤 `find_issues`를 부르고, 돌아온 E002 9/2 한 건을 표로 정리해 줌.
+
+질문을 넣고 답이 올 때까지의 흐름(13초).
+
+![MCP 시연](docs/images/04-mcp.gif)
+
+답이 온 화면.
+
+![MCP 결과](docs/images/04-mcp-01-result.png)
+
+상세 보기(ctrl+o)로 보면 도구에 넘긴 조건과 돌아온 JSON이 그대로 보임. `applied`가 실제 적용된 조건, `rows`가 조회 결과.
+
+![MCP 도구 호출](docs/images/04-mcp-02-tool-call.png)
+
+"10월 1일 퇴근 미태그 보여줘"는 화면·자연어 경로와 똑같이 0건이 아니라 기간 밖(`out_of_range`)으로 돌아옴. 조건 검사를 한 곳에서 하기 때문.
+
+![MCP 기간 밖](docs/images/04-mcp-03-out-of-range.png)
+
+### 안전장치
+
+- 읽기 전용: SQLite를 `mode=ro`로 열어서 도구가 데이터를 바꿀 수 없음. 도구에도 읽기 전용 표시(readOnlyHint)를 붙임
+- 고정 SQL: 도구는 조건만 받고 조회는 `checks.py`, `queries.py`의 SQL이 함. AI 도구가 SQL을 쓰지 않음
+- 조건 검사 재사용: 도구가 받은 조건을 AI 응답과 같은 JSON으로 만들어 `nl_query.ask()`에 넘김. 날짜 형식, 보유 기간, 직원 존재, 문제 종류 허용값 검사를 한 곳에서 함. 기간 밖, 없는 직원, 형식 오류는 0건과 다른 `status`로 돌아옴
+- 행 수 상한: 한 번에 500행까지만 돌려줌(`total`에 전체 건수)
+- 새 데이터 없음: 화면과 같은 가짜 DB(`seed.py`)를 씀. DB가 없으면 처음 부를 때 만듦
+
+### 설치와 연결
+
+`uv`로 가상환경을 만들어 설치함. `mcp` 패키지는 웹 앱 실행에 필요 없어서 `requirements-mcp.txt`에 따로 둠.
+
+```bash
+uv venv
+uv pip install -r requirements.txt -r requirements-mcp.txt
+uv run python mcp_server.py        # stdio로 대기. 보통은 아래처럼 AI 도구가 직접 띄움
+```
+
+Claude Code 등록. 저장소 폴더에서 실행하면 그 폴더에서 `claude`를 켤 때 연결됨.
+
+```bash
+claude mcp add attendance -- uv --directory <저장소 폴더> run python mcp_server.py
+claude mcp list                    # attendance: ... ✔ Connected
+```
+
+Claude Desktop은 설정 파일(`claude_desktop_config.json`)에 추가하고 앱을 다시 켬.
+
+```json
+{
+  "mcpServers": {
+    "attendance": {
+      "command": "uv",
+      "args": ["--directory", "<저장소 폴더>", "run", "python", "mcp_server.py"]
+    }
+  }
+}
+```
+
+### 테스트
+
+`tests/test_mcp_server.py` 27개. 전송 계층 없이 도구 함수를 직접 불러 정답 12건과 한 건씩 비교하고, 기간 밖·없는 직원·형식 오류 8가지가 조회 없이 `status`로 돌아오는지, DB가 실제로 읽기 전용인지, 행 수 상한이 걸리는지 확인함. 기존 52개와 합쳐 79개 통과.
 
 ## 찾는 문제와 정답
 
@@ -109,9 +184,9 @@ cloudflared tunnel --url http://localhost:7860
 ```bash
 ollama pull qwen3:4b-instruct
 python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt -r requirements-mcp.txt
 python seed.py      # 가짜 DB 만들기
-pytest -q           # 테스트 52개, AI 없이 돌아감
+pytest -q           # 테스트 79개, AI 없이 돌아감
 python app.py       # http://localhost:5000
 python eval/run_eval.py --label <이름> --note "<이유>"   # AI 평가 24회
 ```
@@ -127,7 +202,8 @@ python eval/run_eval.py --label <이름> --note "<이유>"   # AI 평가 24회
 | `nl_query.py` | AI 응답 검사, SQL 조회, 결과 상태 구분 |
 | `queries.py` | AI 조회에 쓰는 SQL 3종 (문제 목록, 직원별 기록, 시간 차이) |
 | `app.py`, `templates/`, `static/` | 웹 화면 |
-| `tests/` | 자동 테스트 52개 |
+| `mcp_server.py` | MCP 서버. 읽기 전용 도구 4개, 조건 검사는 `nl_query.py` 재사용 |
+| `tests/` | 자동 테스트 79개 |
 | `eval/` | AI 평가 질문, 실행 스크립트, 결과 기록 |
 | `Dockerfile`, `entrypoint.sh` | 앱과 AI 모델을 이미지 하나로 묶음 |
 
