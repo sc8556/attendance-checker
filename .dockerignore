@@ -7,3 +7,4 @@ attendance.db
 *.xlsx
 eval/
 tests/
+.venv/
