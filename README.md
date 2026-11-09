@@ -212,5 +212,6 @@ python eval/run_eval.py --label <이름> --note "<이유>"   # AI 평가 24회
 - 답할 수 있는 질문은 문제 목록, 직원별 기록, 시간 차이 세 가지.
 - AI 정확도는 질문 8개로만 확인함.
 - 노트북과 터널로 공개해서 항상 접속되거나 주소가 고정되지는 않음. AI는 한 번에 질문 하나만 처리함.
+- MCP 서버는 stdio 방식이라 같은 PC에서 띄운 AI 도구 하나와만 연결됨. 원격 접속(HTTP)은 지원하지 않음.
 
 설계 과정과 결정 기록은 [`docs/2026-09-27-attendance-checker-design.md`](docs/2026-09-27-attendance-checker-design.md)에 있음.
