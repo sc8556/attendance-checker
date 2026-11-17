@@ -43,7 +43,7 @@ claude mcp list           # attendance: ... ✔ Connected
 3. `main`에 합칠지 결정. 합치면 README 맨 위 소개(MCP 문장)도 `main`에 반영됨
 4. 선택: README 맨 위에 「어디를 보면 되는지」 한 줄. SQL은 `checks.py`·`queries.py`, 서버는 `app.py`·`mcp_server.py`, 검증은 `tests/`·`eval/`
 5. 선택: README의 「직원 이름은 모두 지어낸 이름」 문장과 E011 이름이 맞지 않는 점 정리
-6. 선택: `docs/2026-09-27-attendance-checker-design.md`에 남은 특정 업체명 2곳(64행, 136행)을 「출입 단말 업체」 같은 일반 용어로 바꾸기
+6. 완료(2026-11-17): `docs/2026-09-27-attendance-checker-design.md`를 공개용으로 다시 씀. 업체명, 소속, 실제 업무 내용, AI 대화 기록을 빼고 결정과 근거만 남김. 이전 내용은 git 기록에는 남아 있음
 
 ## 안 하기로 한 것과 이유
 
