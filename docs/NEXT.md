@@ -38,8 +38,8 @@ claude mcp list           # attendance: ... ✔ Connected
 
 ## 이어서 할 일 (우선순위 순)
 
-1. `docs/2026-11-09-mcp-design.md` 채우기. 뼈대만 있고 내용은 비어 있음. AI가 아니라 작성자가 직접 쓰는 것이 목적. 구현하면서 실제로 정한 근거만 적는다
-2. `mcp_server.py`와 `tests/test_mcp_server.py`를 읽고, 한 군데를 일부러 바꿔(예: `MAX_ROWS` 값, `mode=ro` 제거) 테스트가 깨지는 것을 확인한 뒤 되돌리기. 코드를 손으로 만져 보는 단계
+1. 완료(2026-11-25): `docs/2026-11-09-mcp-design.md` 채우기. 작성자 인터뷰 답으로 채운 뒤(2026-11-17) 작성자가 문장마다 확인하고 고침
+2. 완료(2026-11-25): 코드를 일부러 바꿔(`mode=ro` 제거, `TIME_DIFF_MINUTES` 10→50) 테스트가 깨지는 것을 확인한 뒤 되돌림. 결과는 설계 메모 「테스트로 확인한 것」
 3. `main`에 합칠지 결정. 합치면 README 맨 위 소개(MCP 문장)도 `main`에 반영됨
 4. 선택: README 맨 위에 「어디를 보면 되는지」 한 줄. SQL은 `checks.py`·`queries.py`, 서버는 `app.py`·`mcp_server.py`, 검증은 `tests/`·`eval/`
 5. 선택: README의 「직원 이름은 모두 지어낸 이름」 문장과 E011 이름이 맞지 않는 점 정리
