@@ -1,10 +1,25 @@
-# 이어서 할 내용 (2026-11-09 기준)
+# 이어서 할 내용 (2026-11-25 기준)
 
 다른 PC의 Claude Code에서 바로 이어서 할 수 있게 적어 둔 메모. 공개 저장소이므로 회사, 소속, 실존 인물, 내부 주소는 적지 않는다. 데이터는 가짜 데이터만 쓴다.
 
-다른 PC의 Claude Code에서 처음 할 말: 『docs/NEXT.md와 docs/mcp-학습메모.md를 읽고, 이어서 할 일 1번부터 도와줘』
+Ollama가 있는 PC의 Claude Code에서 처음 할 말: 『docs/NEXT.md를 읽고, 「다음 할 일」 1번부터 도와줘』
 
-## 현재 상태
+## 다음 할 일 (2026-11-25 결정)
+
+브랜치는 `e011-fake-name`에서 한다. `mcp-server`가 아님(E011 이름 변경 커밋이 이 브랜치에만 있음).
+
+1. 6차 AI 평가(24회). E011 이름 변경으로 AI 지시가 p7에서 p8로 바뀌었기 때문. Ollama와 모델 준비 후 실행
+   ```bash
+   ollama pull qwen3:4b-instruct
+   uv run python eval/run_eval.py --label <실행 날짜>-p8-attempt6 --note "E011 이름만 다른 지어낸 이름으로 변경. 지시 p7→p8. 문항·기대값·통과 기준 변경 없음."
+   ```
+   결과는 `eval/results/<label>/`에 생김. 실패해도 기록은 지우지 않는다
+2. README 고치기. 평가 표 6차 줄의 「아직 실행 전」을 결과(예: 24/24)로 바꾸고, 맨 위 표의 「(5차)」를 결과에 맞게 고침. 결과 폴더와 함께 커밋
+3. `main`에 합치기. `e011-fake-name`을 `main`에 합치고 push는 작성자가 직접 함. 합치면 공개용 설계 문서와 MCP 절이 저장소 첫 화면에 반영됨
+
+정한 것: git 기록에 남은 옛 설계 문서와 실명은 지우지 않고 그대로 둠(2026-11-25)
+
+## 지난 상태 (2026-11-09)
 
 - 브랜치 `mcp-server`. `main` 위에 커밋 3개
   - 3c041b6 MCP 서버 추가. `mcp_server.py`(도구 4개, 읽기 전용), `tests/test_mcp_server.py`(27개), `requirements-mcp.txt`
@@ -20,10 +35,10 @@
 ```bash
 git clone https://github.com/sc8556/attendance-checker.git   # 이미 있으면 git pull
 cd attendance-checker
-git checkout mcp-server
+git checkout e011-fake-name
 uv venv
 uv pip install -r requirements.txt -r requirements-dev.txt -r requirements-mcp.txt
-uv run python seed.py     # 가짜 DB 만들기
+uv run python seed.py     # 가짜 DB 만들기. 이미 있던 PC도 E011 이름이 바뀌었으니 다시 실행
 uv run pytest -q          # 79 passed 가 나와야 함
 ```
 
@@ -40,9 +55,9 @@ claude mcp list           # attendance: ... ✔ Connected
 
 1. 완료(2026-11-25): `docs/2026-11-09-mcp-design.md` 채우기. 작성자 인터뷰 답으로 채운 뒤(2026-11-17) 작성자가 문장마다 확인하고 고침
 2. 완료(2026-11-25): 코드를 일부러 바꿔(`mode=ro` 제거, `TIME_DIFF_MINUTES` 10→50) 테스트가 깨지는 것을 확인한 뒤 되돌림. 결과는 설계 메모 「테스트로 확인한 것」
-3. `main`에 합칠지 결정. 합치면 README 맨 위 소개(MCP 문장)도 `main`에 반영됨
+3. 결정(2026-11-25): 6차 평가 뒤 `main`에 합침. 위 「다음 할 일」 참고
 4. 선택: README 맨 위에 「어디를 보면 되는지」 한 줄. SQL은 `checks.py`·`queries.py`, 서버는 `app.py`·`mcp_server.py`, 검증은 `tests/`·`eval/`
-5. 완료(2026-11-25): E011 이름을 지어낸 이름(송지호)으로 바꿈. AI 지시가 p8로 바뀌어 6차 평가(24회)는 Ollama가 있는 PC에서 돌려야 함. `python eval/run_eval.py --label p8-attempt6 --note "E011 이름 변경"`
+5. 완료(2026-11-25): E011 이름을 지어낸 이름(송지호)으로 바꿈. AI 지시가 p8로 바뀌어 6차 평가(24회)는 위 「다음 할 일」 1번
 6. 완료(2026-11-17): `docs/2026-09-27-attendance-checker-design.md`를 공개용으로 다시 씀. 업체명, 소속, 실제 업무 내용, AI 대화 기록을 빼고 결정과 근거만 남김. 이전 내용은 git 기록에는 남아 있음
 
 ## 안 하기로 한 것과 이유
