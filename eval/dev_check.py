@@ -35,7 +35,7 @@ DEV_QUESTIONS = [
     ("9월 14일 시각 어긋남(출근) 보여줘", "ok", {"date_from": "2026-09-14", "date_to": "2026-09-14", "issue_type": "시각 어긋남(출근)"}),
     ("E010 9월 14일 출입 기록", "ok", {"query_type": "employee_records", "employee_id": "E010", "date_from": "2026-09-14", "date_to": "2026-09-14"}),
     # p7: 새로 추가한 직원(E011·E012)을 이름으로 묻는 질문. p8에서 E011 이름을 송지호로 바꿈
-    ("박다솜 9월 9일 기록 보여줘", "ok", {"query_type": "employee_records", "employee_id": "E012", "date_from": "2026-09-09", "date_to": "2026-09-09"}),
+    ("박다은 9월 9일 기록 보여줘", "ok", {"query_type": "employee_records", "employee_id": "E012", "date_from": "2026-09-09", "date_to": "2026-09-09"}),
     ("송지호 9월에 문제 있었어?", "empty", {"query_type": "issues", "employee_id": "E011"}),
 ]
 

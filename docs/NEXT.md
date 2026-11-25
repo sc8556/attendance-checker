@@ -4,6 +4,12 @@
 
 Ollama가 있는 PC의 Claude Code에서 처음 할 말: 『docs/NEXT.md를 읽고, 「다음 할 일」 1번부터 도와줘』
 
+## 코드 공부 이어서 하기 (2026-11-25)
+
+- 오늘 본 흐름은 `nl_query.ask()`가 `ai.extract()`로 모델을 호출하고, 응답의 `raw`를 `parse()`에 넘기는 부분까지. `raw`는 JSON 형식의 문자열이고, `parse()`는 이를 파이썬 딕셔너리로 변환한 뒤 필수 항목과 값을 검사함.
+- 오류 흐름도 확인함. `resp.raise_for_status()`가 HTTP 오류를 알리면 `extract()`가 `AIError`를 발생시키고 `ask()`가 받아 처리함. 조회 조건 검증에 실패하면 `parse()`에서 `InvalidResponse`가 발생함.
+- 다음에 시작할 함수는 [`applied_conditions(cond)`](../nl_query.py#L110). “퇴근 미태그 보여줘”를 예로, `parsed`에서는 날짜가 둘 다 `None`인데 `applied`에서는 왜 9월 1일과 14일이 되는지 한 줄씩 따라가기. 그다음 `run_query()`에서 이 조건을 어느 조회 함수에 넘기는지 확인하기.
+
 ## 다음 할 일 (2026-11-25 결정)
 
 브랜치는 `e011-fake-name`에서 한다. `mcp-server`가 아님(E011 이름 변경 커밋이 이 브랜치에만 있음).
@@ -11,7 +17,7 @@ Ollama가 있는 PC의 Claude Code에서 처음 할 말: 『docs/NEXT.md를 읽�
 1. 6차 AI 평가(24회). E011 이름 변경으로 AI 지시가 p7에서 p8로 바뀌었기 때문. Ollama와 모델 준비 후 실행
    ```bash
    ollama pull qwen3:4b-instruct
-   uv run python eval/run_eval.py --label <실행 날짜>-p8-attempt6 --note "E011 이름만 다른 지어낸 이름으로 변경. 지시 p7→p8. 문항·기대값·통과 기준 변경 없음."
+   uv run python eval/run_eval.py --label <실행 날짜>-p8-attempt6 --note "E011·E012의 데모 이름 변경. 지시 p7→p8. 공식 문항·기대값·통과 기준 변경 없음."
    ```
    결과는 `eval/results/<label>/`에 생김. 실패해도 기록은 지우지 않는다
 2. README 고치기. 평가 표 6차 줄의 「아직 실행 전」을 결과(예: 24/24)로 바꾸고, 맨 위 표의 「(5차)」를 결과에 맞게 고침. 결과 폴더와 함께 커밋
