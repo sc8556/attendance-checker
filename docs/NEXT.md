@@ -42,7 +42,7 @@ claude mcp list           # attendance: ... ✔ Connected
 2. 완료(2026-11-25): 코드를 일부러 바꿔(`mode=ro` 제거, `TIME_DIFF_MINUTES` 10→50) 테스트가 깨지는 것을 확인한 뒤 되돌림. 결과는 설계 메모 「테스트로 확인한 것」
 3. `main`에 합칠지 결정. 합치면 README 맨 위 소개(MCP 문장)도 `main`에 반영됨
 4. 선택: README 맨 위에 「어디를 보면 되는지」 한 줄. SQL은 `checks.py`·`queries.py`, 서버는 `app.py`·`mcp_server.py`, 검증은 `tests/`·`eval/`
-5. 선택: README의 「직원 이름은 모두 지어낸 이름」 문장과 E011 이름이 맞지 않는 점 정리
+5. 완료(2026-11-25): E011 이름을 지어낸 이름(송지호)으로 바꿈. AI 지시가 p8로 바뀌어 6차 평가(24회)는 Ollama가 있는 PC에서 돌려야 함. `python eval/run_eval.py --label p8-attempt6 --note "E011 이름 변경"`
 6. 완료(2026-11-17): `docs/2026-09-27-attendance-checker-design.md`를 공개용으로 다시 씀. 업체명, 소속, 실제 업무 내용, AI 대화 기록을 빼고 결정과 근거만 남김. 이전 내용은 git 기록에는 남아 있음
 
 ## 안 하기로 한 것과 이유
