@@ -57,11 +57,16 @@ ORDER BY m.work_date, m.emp_id
 """
 
 SQL_MISSING_IN = DAY_CTE + """
-SELECT emp_id, work_date, first_time, check_in FROM day WHERE first_dir = 'OUT' ORDER BY work_date, emp_id
+SELECT emp_id, work_date, first_time, check_in
+FROM day
+WHERE first_dir = 'OUT' ORDER BY work_date, emp_id
 """
 
 SQL_MISSING_OUT = DAY_CTE + """
-SELECT emp_id, work_date, last_time, check_out FROM day WHERE last_dir = 'IN' ORDER BY work_date, emp_id
+SELECT emp_id, work_date, last_time, check_out
+FROM day
+WHERE last_dir = 'IN'
+ORDER BY work_date, emp_id
 """
 
 # 시간 차이: 같은 쪽 미태그인 날 제외. queries.py의 시간 차이 조회도 이 SQL을 쓴다.
@@ -118,22 +123,28 @@ def find_no_records(conn, date_from=None, date_to=None, emp_id=None):
     return [issue(NO_RECORD, r, f"수기 {r['check_in']}~{r['check_out']}, 단말 기록 0건") for r in rows]
 
 
+def missing_in_detail(r):
+    head = f"출근 등록 {r['first_time']}(첫 기록)"
+    if r["check_in"] is None:
+        return f"{head} / 수기 기록 미존재"
+    return f"{head} / 수기 {r['check_in']} → {hm(to_min(r['first_time']) - to_min(r['check_in']))} 늦게 잡힘"
+
+
 def find_missing_in(conn, date_from=None, date_to=None, emp_id=None):
     rows = query(conn, SQL_MISSING_IN, params(date_from, date_to, emp_id))
-    return [
-        issue(MISSING_IN, r, f"출근 등록 {r['first_time']}(첫 기록) / 수기 {r['check_in']} → "
-                             f"{hm(to_min(r['first_time']) - to_min(r['check_in']))} 늦게 잡힘")
-        for r in rows
-    ]
+    return [issue(MISSING_IN, r, missing_in_detail(r)) for r in rows]
+
+
+def missing_out_detail(r):
+    head = f"퇴근 등록 {r['last_time']}(마지막 기록)"
+    if r["check_out"] is None:
+        return f"{head} / 수기 기록 미존재"
+    return f"{head} / 수기 {r['check_out']} → {hm(to_min(r['check_out']) - to_min(r['last_time']))} 짧게 잡힘"
 
 
 def find_missing_out(conn, date_from=None, date_to=None, emp_id=None):
     rows = query(conn, SQL_MISSING_OUT, params(date_from, date_to, emp_id))
-    return [
-        issue(MISSING_OUT, r, f"퇴근 등록 {r['last_time']}(마지막 기록) / 수기 {r['check_out']} → "
-                              f"{hm(to_min(r['check_out']) - to_min(r['last_time']))} 짧게 잡힘")
-        for r in rows
-    ]
+    return [issue(MISSING_OUT, r, missing_out_detail(r)) for r in rows]
 
 
 def time_diff_rows(conn, side, min_diff, date_from=None, date_to=None, emp_id=None):

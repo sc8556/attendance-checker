@@ -58,6 +58,15 @@ def test_details_use_real_times(conn):
     assert by_key[("기록 없음", "E004", "2026-09-04")]["detail"] == "수기 08:00~17:00, 단말 기록 0건"
 
 
+def test_missing_tag_without_manual_record(conn):
+    """수기 기록이 없는 날의 미태그도 멈추지 않고 찾는다. 수기와의 차이는 계산하지 않는다."""
+    conn.execute("DELETE FROM manual_sheet WHERE (emp_id, work_date) IN "
+                 "(('E003', '2026-09-08'), ('E002', '2026-09-02'))")
+    by_key = {(r["issue_type"], r["emp_id"], r["work_date"]): r for r in checks.find_all(conn)}
+    assert by_key[("출근 미태그", "E003", "2026-09-08")]["detail"] == "출근 등록 11:57(첫 기록) / 수기 기록 미존재"
+    assert by_key[("퇴근 미태그", "E002", "2026-09-02")]["detail"] == "퇴근 등록 15:13(마지막 기록) / 수기 기록 미존재"
+
+
 def test_seeded_e002_0902_logs(conn):
     """평가 문항 ③의 기대값. jitter 공식으로 손으로 계산한 값과 seed 결과를 대조한다."""
     rows = conn.execute(

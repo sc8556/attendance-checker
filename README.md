@@ -115,7 +115,7 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)에 추가하고 �
 
 ### 테스트
 
-`tests/test_mcp_server.py` 27개. 전송 계층 없이 도구 함수를 직접 불러 정답 12건과 한 건씩 비교하고, 기간 밖·없는 직원·형식 오류 8가지가 조회 없이 `status`로 돌아오는지, DB가 실제로 읽기 전용인지, 행 수 상한이 걸리는지 확인함. 기존 52개와 합쳐 79개 통과.
+`tests/test_mcp_server.py` 27개. 전송 계층 없이 도구 함수를 직접 불러 정답 12건과 한 건씩 비교하고, 기간 밖·없는 직원·형식 오류 8가지가 조회 없이 `status`로 돌아오는지, DB가 실제로 읽기 전용인지, 행 수 상한이 걸리는지 확인함. 다른 테스트와 합쳐 80개 통과.
 
 ## 찾는 문제와 정답
 
@@ -187,7 +187,7 @@ ollama pull qwen3:4b-instruct
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt -r requirements-mcp.txt
 python seed.py      # 가짜 DB 만들기
-pytest -q           # 테스트 79개, AI 없이 돌아감
+pytest -q           # 테스트 80개, AI 없이 돌아감
 python app.py       # http://localhost:5000
 python eval/run_eval.py --label <이름> --note "<이유>"   # AI 평가 24회
 ```
@@ -204,7 +204,7 @@ python eval/run_eval.py --label <이름> --note "<이유>"   # AI 평가 24회
 | `queries.py` | AI 조회에 쓰는 SQL 3종 (문제 목록, 직원별 기록, 시간 차이) |
 | `app.py`, `templates/`, `static/` | 웹 화면 |
 | `mcp_server.py` | MCP 서버. 읽기 전용 도구 4개, 조건 검사는 `nl_query.py` 재사용 |
-| `tests/` | 자동 테스트 79개 |
+| `tests/` | 자동 테스트 80개 |
 | `eval/` | AI 평가 질문, 실행 스크립트, 결과 기록 |
 | `Dockerfile`, `entrypoint.sh` | 앱과 AI 모델을 이미지 하나로 묶음 |
 

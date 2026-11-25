@@ -39,7 +39,7 @@ git checkout e011-fake-name
 uv venv
 uv pip install -r requirements.txt -r requirements-dev.txt -r requirements-mcp.txt
 uv run python seed.py     # 가짜 DB 만들기. 이미 있던 PC도 E011 이름이 바뀌었으니 다시 실행
-uv run pytest -q          # 79 passed 가 나와야 함
+uv run pytest -q          # 80 passed 가 나와야 함
 ```
 
 Claude Code에 MCP 등록. 저장소 폴더에서 실행한다.
